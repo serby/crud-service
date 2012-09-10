@@ -1,0 +1,25 @@
+{ "author": "Paul Serby <paul@serby.net>"
+, "name": "generic"
+, "description": ""
+, "version": "0.0.1"
+, "tags": []
+, "repository":
+  { "type": "git"
+  , "url": "git@github.com:serby/generic"
+  }
+, "main": "./crud-model.js"
+, "scripts":
+  { "test": "mocha -r should"
+  }
+, "engines":
+  { "node": ">=0.6.0"
+  }
+, "dependencies":
+  { "lodash": "*"
+  , "piton-pipe": "*"
+  }
+, "devDependencies":
+  { "mocha": "*"
+  , "should": "*"
+  }
+}
