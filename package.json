@@ -5,8 +5,7 @@
 , "tags": []
 , "repository":
   { "type": "git"
-  , "url": "git@github.com:serby/crud-model
-"
+  , "url": "git@github.com:serby/crud-model"
   }
 , "main": "./crud-model.js"
 , "scripts":
