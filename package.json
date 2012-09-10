@@ -1,6 +1,5 @@
 { "author": "Paul Serby <paul@serby.net>"
-, "name": "crud-model
-"
+, "name": "crud-model"
 , "description": "Create a crud model by combining schemata and save"
 , "version": "0.0.1"
 , "tags": []
