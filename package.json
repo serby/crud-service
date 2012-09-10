@@ -1,11 +1,13 @@
 { "author": "Paul Serby <paul@serby.net>"
-, "name": "generic"
-, "description": "Create generic models by combining schemata and save"
+, "name": "crud-model
+"
+, "description": "Create a crud model by combining schemata and save"
 , "version": "0.0.1"
 , "tags": []
 , "repository":
   { "type": "git"
-  , "url": "git@github.com:serby/generic"
+  , "url": "git@github.com:serby/crud-model
+"
   }
 , "main": "./crud-model.js"
 , "scripts":
