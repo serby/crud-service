@@ -7,7 +7,9 @@ var _ = require('lodash')
 module.exports = function(name, save, schema, options) {
 
   var slug = (options && options.slug) ? options.slug : name.toLowerCase().replace(/ /g, '')
-    , plural = (options && options.plural) ? options.plural : name + 's';
+    , plural = (options && options.plural) ? options.plural : name + 's'
+    , self = new events.EventEmitter()
+    ;
 
   var pre = {
     create: Pipe.createPipe(),
@@ -22,7 +24,7 @@ module.exports = function(name, save, schema, options) {
     throw new Error();
   }
 
-  return _.extend(new events.EventEmitter(), {
+  return _.extend(self, {
     name: name,
     slug: slug,
     plural: plural,
@@ -54,6 +56,7 @@ module.exports = function(name, save, schema, options) {
               if (error) {
                 return callback(error);
               }
+              self.on('create', savedObject);
               callback(undefined, savedObject);
             });
           });
@@ -88,6 +91,7 @@ module.exports = function(name, save, schema, options) {
               if (error) {
                 return callback(error);
               }
+              self.on('update', savedObject);
               callback(undefined, savedObject);
             });
           });
@@ -95,7 +99,13 @@ module.exports = function(name, save, schema, options) {
       });
     },
     'delete': function(id, callback) {
-      save['delete'](id, callback);
+      save['delete'](id, function(error) {
+        if (error) {
+          return callback(error);
+        }
+        self.on('delete', id);
+        callback();
+      });
     },
     count: save.count,
     find: save.find,
