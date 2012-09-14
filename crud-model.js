@@ -56,7 +56,7 @@ module.exports = function(name, save, schema, options) {
               if (error) {
                 return callback(error);
               }
-              self.on('create', savedObject);
+              self.emit('create', savedObject);
               callback(undefined, savedObject);
             });
           });
@@ -91,7 +91,7 @@ module.exports = function(name, save, schema, options) {
               if (error) {
                 return callback(error);
               }
-              self.on('update', savedObject);
+              self.emit('update', savedObject);
               callback(undefined, savedObject);
             });
           });
@@ -103,7 +103,7 @@ module.exports = function(name, save, schema, options) {
         if (error) {
           return callback(error);
         }
-        self.on('delete', id);
+        self.emit('delete', id);
         callback();
       });
     },
