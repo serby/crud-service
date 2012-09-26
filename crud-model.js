@@ -31,6 +31,13 @@ module.exports = function(name, save, schema, options) {
     schema: schema,
     idProperty: save.idProperty,
     create: function(object, validateOptions, callback) {
+
+      // Accept create(object, callback)
+      if (typeof validateOptions === 'function') {
+        callback = validateOptions;
+        validateOptions = null;
+      }
+
       callback = callback || emptyFn;
 
       var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), validateOptions.tag));
@@ -65,6 +72,13 @@ module.exports = function(name, save, schema, options) {
     },
     read: save.read,
     update: function(object, validateOptions, callback) {
+
+      // Accept update(object, callback)
+      if (typeof validateOptions === 'function') {
+        callback = validateOptions;
+        validateOptions = null;
+      }
+
       callback = callback || emptyFn;
 
       var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), validateOptions.tag));
