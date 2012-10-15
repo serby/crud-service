@@ -15,8 +15,7 @@
   { "node": ">=0.6.0"
   }
 , "dependencies":
-  { "lodash": "*"
-  , "piton-pipe": "*"
+  { "piton-pipe": "*"
   }
 , "devDependencies":
   { "mocha": "*"
