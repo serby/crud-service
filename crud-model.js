@@ -20,7 +20,8 @@ module.exports = function(name, save, schema, options) {
   }
 
   if (schema.schema[save.idProperty] === undefined) {
-    throw new Error()
+    throw new Error('schema does not have the required property \'' +
+      save.idProperty + '\'')
   }
 
   return extend(self, {
