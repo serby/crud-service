@@ -31,6 +31,11 @@ module.exports = function(name, save, schema, options) {
     schema: schema,
     idProperty: save.idProperty,
     create: function(object, validateOptions, callback) {
+
+      if (typeof validateOptions === 'function') {
+        callback = validateOptions
+      }
+
       callback = callback || emptyFn
 
       var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), validateOptions.tag))
