@@ -1,9 +1,9 @@
 var extend = require('util')._extend
   , Pipe = require('piton-pipe')
-  , emptyFn = function() {}
+  , emptyFn = function () {}
   , events = require('events')
 
-module.exports = function(name, save, schema, options) {
+module.exports = function (name, save, schema, options) {
 
   var slug = (options && options.slug) ? options.slug : name.toLowerCase().replace(/ /g, '')
     , plural = (options && options.plural) ? options.plural : name + 's'
@@ -30,7 +30,7 @@ module.exports = function(name, save, schema, options) {
     plural: plural,
     schema: schema,
     idProperty: save.idProperty,
-    create: function(object, validateOptions, callback) {
+    create: function (object, validateOptions, callback) {
 
       if (typeof validateOptions === 'function') {
         callback = validateOptions
@@ -40,11 +40,11 @@ module.exports = function(name, save, schema, options) {
 
       var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), validateOptions.tag))
 
-      pre.createValidate.run(cleanObject, function(error, pipedObject) {
+      pre.createValidate.run(cleanObject, function (error, pipedObject) {
         if (error) {
           return callback(error)
         }
-        schema.validate(pipedObject, validateOptions.set, validateOptions.tag, function(error, validationErrors) {
+        schema.validate(pipedObject, validateOptions.set, validateOptions.tag, function (error, validationErrors) {
           if (error) {
             return callback(error)
           }
@@ -53,11 +53,11 @@ module.exports = function(name, save, schema, options) {
             validationError.errors = validationErrors
             return callback(validationError, pipedObject)
           }
-          pre.create.run(pipedObject, function(error, pipedObject) {
+          pre.create.run(pipedObject, function (error, pipedObject) {
             if (error) {
               return callback(error)
             }
-            save.create(pipedObject, function(error, savedObject) {
+            save.create(pipedObject, function (error, savedObject) {
               if (error) {
                 return callback(error)
               }
@@ -69,17 +69,17 @@ module.exports = function(name, save, schema, options) {
       })
     },
     read: save.read,
-    update: function(object, validateOptions, callback) {
+    update: function (object, validateOptions, callback) {
       callback = callback || emptyFn
 
       var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), validateOptions.tag))
 
-      pre.updateValidate.run(cleanObject, function(error, pipedObject) {
+      pre.updateValidate.run(cleanObject, function (error, pipedObject) {
         if (error) {
           return callback(error)
         }
         schema.validate(pipedObject, validateOptions.set, validateOptions.tag,
-          function(error, validationErrors) {
+          function (error, validationErrors) {
           if (error) {
             return callback(error)
           }
@@ -88,11 +88,11 @@ module.exports = function(name, save, schema, options) {
             validationError.errors = validationErrors
             return callback(validationError, pipedObject)
           }
-          pre.update.run(pipedObject, function(error, pipedObject) {
+          pre.update.run(pipedObject, function (error, pipedObject) {
             if (error) {
               return callback(error, pipedObject)
             }
-            save.update(pipedObject, function(error, savedObject) {
+            save.update(pipedObject, function (error, savedObject) {
               if (error) {
                 return callback(error)
               }
@@ -103,8 +103,8 @@ module.exports = function(name, save, schema, options) {
         })
       })
     },
-    'delete': function(id, callback) {
-      save['delete'](id, function(error) {
+    'delete': function (id, callback) {
+      save['delete'](id, function (error) {
         if (error) {
           return callback(error)
         }
@@ -112,9 +112,18 @@ module.exports = function(name, save, schema, options) {
         callback()
       })
     },
+    deleteMany: function (query, callback) {
+      save.deleteMany(query, function (error) {
+        if (error) {
+          return callback(error)
+        }
+        self.emit('deleteMany', query)
+        callback()
+      })
+    },
     count: save.count,
     find: save.find,
-    pre: function(method, processor) {
+    pre: function (method, processor) {
       return pre[method].add(processor)
     }
   })
