@@ -109,7 +109,7 @@ module.exports = function (name, save, schema, options) {
           return callback(error)
         }
         self.emit('delete', id)
-        callback()
+        if (typeof callback === 'function') callback()
       })
     },
     deleteMany: function (query, callback) {
