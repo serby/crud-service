@@ -1,18 +1,18 @@
 { "author": "Paul Serby <paul@serby.net>"
-, "name": "crud-model"
-, "description": "Create a crud model by combining schemata and save"
+, "name": "crud-service"
+, "description": "Create a crud service by combining schemata and save"
 , "version": "0.0.1"
 , "tags": []
 , "repository":
   { "type": "git"
-  , "url": "git@github.com:serby/crud-model"
+  , "url": "git@github.com:serby/crud-service"
   }
-, "main": "./crud-model.js"
+, "main": "./crud-service.js"
 , "scripts":
   { "test": "mocha -r should"
   }
 , "engines":
-  { "node": ">=0.6.0"
+  { "node": ">=0.8.0"
   }
 , "dependencies":
   { "piton-pipe": "*"

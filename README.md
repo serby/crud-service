@@ -1,10 +1,10 @@
-# crud-model
+# crud-service Simple crud service for object definition, validation, basic persistance and collection
 
-[![build status](https://secure.travis-ci.org/serby/crud-modelpng)](http://travis-ci.org/serby/crud-model)
+[![build status](https://secure.travis-ci.org/serby/crud-servicepng)](http://travis-ci.org/serby/crud-service)
 
 ## Installation
 
-      npm install crud-model
+      npm install crud-service
 
 ## Usage
 
