@@ -3,19 +3,19 @@ var extend = require('util')._extend
   , emptyFn = function () {}
   , events = require('events')
 
-module.exports = function (name, save, schema, options) {
+module.exports = function CrudService(name, save, schema, options) {
 
   var slug = (options && options.slug) ? options.slug : name.toLowerCase().replace(/ /g, '')
     , plural = (options && options.plural) ? options.plural : name + 's'
     , self = new events.EventEmitter()
 
-
   var pre = {
     create: Pipe.createPipe(),
     createValidate: Pipe.createPipe(),
     update: Pipe.createPipe(),
-    updateValidate
-    : Pipe.createPipe(),
+    updateValidate: Pipe.createPipe(),
+    partialUpdate: Pipe.createPipe(),
+    partialValidate: Pipe.createPipe(),
     'delete': Pipe.createPipe()
   }
 
@@ -97,6 +97,48 @@ module.exports = function (name, save, schema, options) {
                 return callback(error)
               }
               self.emit('update', savedObject)
+              callback(undefined, savedObject)
+            })
+          })
+        })
+      })
+    },
+    partialUpdate: function (object, validateOptions, callback) {
+      callback = callback || emptyFn
+
+      if (typeof validateOptions === 'function') {
+        callback = validateOptions
+      }
+
+      var cleanObject = schema.cast(schema.stripUnknownProperties(object, validateOptions.tag))
+
+      pre.partialUpdate.run(cleanObject, function (error, pipedObject) {
+        if (error) {
+          return callback(error)
+        }
+        schema.validate(pipedObject, validateOptions.set, validateOptions.tag,
+          function (error, validationErrors) {
+          if (error) {
+            console.log(1)
+            return callback(error)
+          }
+          if (Object.keys(validationErrors).length > 0) {
+            var validationError = new Error('Validation Error')
+            validationError.errors = validationErrors
+            console.log(2)
+            return callback(validationError, pipedObject)
+          }
+          pre.partialUpdate.run(pipedObject, function (error, pipedObject) {
+            if (error) {
+              console.log(3)
+              return callback(error, pipedObject)
+            }
+            save.update(pipedObject, function (error, savedObject) {
+              if (error) {
+                console.log(4)
+                return callback(error)
+              }
+              self.emit('partialUpdate', savedObject)
               callback(undefined, savedObject)
             })
           })
