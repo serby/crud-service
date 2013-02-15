@@ -109,33 +109,44 @@ module.exports = function CrudService(name, save, schema, options) {
       if (typeof validateOptions === 'function') {
         callback = validateOptions
       }
-
-      var cleanObject = schema.cast(schema.stripUnknownProperties(object, validateOptions.tag))
-
-      pre.partialUpdate.run(cleanObject, function (error, pipedObject) {
+      save.read(object[save.idProperty], function (error, readObject) {
         if (error) {
           return callback(error)
         }
-        schema.validate(pipedObject, validateOptions.set, validateOptions.tag,
-          function (error, validationErrors) {
+        readObject = extend(readObject, object)
+
+        var cleanObject = schema.cast(schema.stripUnknownProperties(readObject, validateOptions.tag))
+
+        pre.partialUpdate.run(cleanObject, function (error, pipedObject) {
           if (error) {
             return callback(error)
           }
-          if (Object.keys(validationErrors).length > 0) {
-            var validationError = new Error('Validation Error')
-            validationError.errors = validationErrors
-            return callback(validationError, pipedObject)
-          }
-          pre.partialUpdate.run(pipedObject, function (error, pipedObject) {
+          schema.validate(pipedObject, validateOptions.set, validateOptions.tag,
+            function (error, validationErrors) {
             if (error) {
-              return callback(error, pipedObject)
+              return callback(error)
             }
-            save.update(pipedObject, function (error, savedObject) {
+            if (Object.keys(validationErrors).length > 0) {
+              var validationError = new Error('Validation Error')
+              validationError.errors = validationErrors
+              return callback(validationError, pipedObject)
+            }
+            pre.partialUpdate.run(pipedObject, function (error, pipedObject) {
               if (error) {
-                return callback(error)
+                return callback(error, pipedObject)
               }
-              self.emit('partialUpdate', savedObject)
-              callback(undefined, savedObject)
+              // Now only update the keys the original object had.
+              var objectForUpdate = {}
+              Object.keys(object).forEach(function (key) {
+                objectForUpdate[key] = pipedObject[key]
+              })
+              save.update(objectForUpdate, function (error, savedObject) {
+                if (error) {
+                  return callback(error)
+                }
+                self.emit('partialUpdate', savedObject)
+                callback(undefined, savedObject)
+              })
             })
           })
         })

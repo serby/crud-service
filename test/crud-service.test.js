@@ -1,4 +1,5 @@
 var emptyFn = function () {}
+  , validity = require('validity')
 
 function createContactCrudService() {
   var crudService = require('..')
@@ -9,10 +10,16 @@ function createContactCrudService() {
         }
       , name:
         { type: String
+        , validators:
+          { all: [validity.required]
           }
+        }
       , email:
         { type: String
+        ,  validators:
+          { all: [validity.required]
           }
+        }
       })
 
   return crudService('Contact', save, schema)
