@@ -119,23 +119,19 @@ module.exports = function CrudService(name, save, schema, options) {
         schema.validate(pipedObject, validateOptions.set, validateOptions.tag,
           function (error, validationErrors) {
           if (error) {
-            console.log(1)
             return callback(error)
           }
           if (Object.keys(validationErrors).length > 0) {
             var validationError = new Error('Validation Error')
             validationError.errors = validationErrors
-            console.log(2)
             return callback(validationError, pipedObject)
           }
           pre.partialUpdate.run(pipedObject, function (error, pipedObject) {
             if (error) {
-              console.log(3)
               return callback(error, pipedObject)
             }
             save.update(pipedObject, function (error, savedObject) {
               if (error) {
-                console.log(4)
                 return callback(error)
               }
               self.emit('partialUpdate', savedObject)
