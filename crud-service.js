@@ -68,7 +68,9 @@ module.exports = function CrudService(name, save, schema, options) {
         })
       })
     },
-    read: save.read,
+    read: function(id, callback) {
+      return save.read(schema.castProperty(schema.schema[save.idProperty].type, id), callback)
+    },
     update: function (object, validateOptions, callback) {
       callback = callback || emptyFn
 
@@ -109,6 +111,12 @@ module.exports = function CrudService(name, save, schema, options) {
       if (typeof validateOptions === 'function') {
         callback = validateOptions
       }
+
+      if (!object[save.idProperty]) {
+        return callback(new Error('object have not ID property \'' + save.idProperty
+          + '\''))
+      }
+
       save.read(object[save.idProperty], function (error, readObject) {
         if (error) {
           return callback(error)

@@ -38,7 +38,24 @@ describe('crud-service', function () {
   })
 
   describe('read()', function () {
-    it('should')
+    var service
+      , id
+      , obj
+    before(function (done) {
+      service = createContactCrudService()
+      service.create({ name: 'Paul', email: 'paul@serby.net'}, function (error, newObject) {
+        id = newObject._id
+        obj = newObject
+        done()
+      })
+    })
+
+    it('should cast id param to correct type', function (done) {
+      service.read('' + id, function (error, entity) {
+        entity.should.eql(obj)
+        done()
+      })
+    })
   })
 
   describe('update()', function () {
