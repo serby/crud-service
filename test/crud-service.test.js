@@ -6,7 +6,7 @@ function createContactCrudService() {
     , save = require('save')('test', { logger: { info: emptyFn }})
     , schema = require('schemata')(
       { _id:
-        { type: Number
+        { type: String
         }
       , name:
         { type: String
