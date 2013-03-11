@@ -121,6 +121,11 @@ module.exports = function CrudService(name, save, schema, options) {
         if (error) {
           return callback(error)
         }
+
+        if (typeof readObject === 'undefined') {
+          return callback(new Error('Couldn\'t find object with an ' + save.idProperty + ' of ' + object[save.idProperty]))
+        }
+
         readObject = extend(readObject, object)
 
         var cleanObject = schema.cast(schema.stripUnknownProperties(readObject, validateOptions.tag))
