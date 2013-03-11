@@ -83,7 +83,20 @@ describe('crud-service', function () {
       })
     })
 
+    it('should throw an error when target can not be found', function (done) {
+
+      var partial = {_id: 'unknown', email: 'noone@nowhere.net'}
+
+      service.partialUpdate(partial, function (error) {
+
+        error.message.should.eql('Couldn\'t find object with an _id of ' + partial._id)
+        done()
+      })
+    })
+
+
     it('should be preprocessed', function (done) {
+
       var partial = { _id: id, name: 'Serby'}
       service.pre('partialUpdate', function (input, callback) {
         input.name = input.name.toUpperCase()
