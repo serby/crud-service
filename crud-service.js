@@ -62,14 +62,18 @@ module.exports = function CrudService(name, save, schema, options) {
                 return callback(error)
               }
               self.emit('create', savedObject)
-              callback(undefined, savedObject)
+              callback(undefined, schema.stripUnknownProperties(savedObject))
             })
           })
         })
       })
     },
-    read: function(id, callback) {
-      return save.read(schema.castProperty(schema.schema[save.idProperty].type, id), callback)
+    read: function (id, callback) {
+      return save.read(schema.castProperty(schema.schema[save.idProperty].type, id), function (error, object) {
+        if (error) return callback(error)
+        if (!object) return callback(undefined, undefined)
+        callback(undefined, schema.stripUnknownProperties(object))
+      })
     },
     update: function (object, validateOptions, callback) {
       callback = callback || emptyFn
@@ -99,7 +103,8 @@ module.exports = function CrudService(name, save, schema, options) {
                 return callback(error)
               }
               self.emit('update', savedObject)
-              callback(undefined, savedObject)
+              if (!savedObject) return callback(undefined, undefined)
+              callback(undefined, schema.stripUnknownProperties(savedObject))
             })
           })
         })
@@ -130,7 +135,7 @@ module.exports = function CrudService(name, save, schema, options) {
 
         var cleanObject = schema.cast(schema.stripUnknownProperties(readObject, validateOptions.tag))
 
-        pre.partialUpdate.run(cleanObject, function (error, pipedObject) {
+        pre.partialValidate.run(cleanObject, function (error, pipedObject) {
           if (error) {
             return callback(error)
           }
@@ -144,21 +149,22 @@ module.exports = function CrudService(name, save, schema, options) {
               validationError.errors = validationErrors
               return callback(validationError, pipedObject)
             }
-            pre.partialUpdate.run(pipedObject, function (error, pipedObject) {
+            // Now only update the keys the original object had.
+            var objectForUpdate = {}
+            Object.keys(object).forEach(function (key) {
+              objectForUpdate[key] = pipedObject[key]
+            })
+            pre.partialUpdate.run(objectForUpdate, function (error, pipedObject) {
               if (error) {
                 return callback(error, pipedObject)
               }
-              // Now only update the keys the original object had.
-              var objectForUpdate = {}
-              Object.keys(object).forEach(function (key) {
-                objectForUpdate[key] = pipedObject[key]
-              })
               save.update(objectForUpdate, function (error, savedObject) {
                 if (error) {
                   return callback(error)
                 }
                 self.emit('partialUpdate', savedObject)
-                callback(undefined, savedObject)
+                if (!savedObject) return callback(undefined, undefined)
+                callback(undefined, schema.stripUnknownProperties(savedObject))
               })
             })
           })
@@ -184,7 +190,19 @@ module.exports = function CrudService(name, save, schema, options) {
       })
     },
     count: save.count,
-    find: save.find,
+    find: function (query, options, callback) {
+      if (typeof options === 'function') {
+        callback = options
+        options = {}
+      }
+      save.find.call(save, query, options, function (error, objects) {
+        if (error) return callback(error)
+        if (!objects.length) return callback(undefined, objects)
+        callback(undefined, objects.map(function (object) {
+          return schema.stripUnknownProperties(object)
+        }))
+      })
+    },
     pre: function (method, processor) {
       return pre[method].add(processor)
     }
