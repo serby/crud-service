@@ -28,6 +28,7 @@
   , "describe"
   , "before"
   , "after"
+  , "beforeEach"
   ]
 , "smarttabs": true
 , "strict": false
