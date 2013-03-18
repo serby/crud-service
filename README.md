@@ -1,4 +1,4 @@
-# crud-service Simple crud service for object definition, validation, basic persistance and collection
+# crud-service Simple crud service for object definition, validation, basic persistence and collection
 
 [![build status](https://secure.travis-ci.org/serby/crud-servicepng)](http://travis-ci.org/serby/crud-service)
 

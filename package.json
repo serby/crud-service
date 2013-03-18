@@ -23,7 +23,7 @@
     "should": "*",
     "save": "*",
     "schemata": "*",
-    "lodash": "~1.0.0",
-    "validity": "0.0.1"
+    "lodash": "*",
+    "validity": "*"
   }
 }
