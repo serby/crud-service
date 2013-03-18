@@ -10,7 +10,7 @@
   },
   "main": "./crud-service.js",
   "scripts": {
-    "test": "mocha -r should"
+    "test": "./node_modules/.bin/mocha -r should"
   },
   "engines": {
     "node": ">=0.8.0"
