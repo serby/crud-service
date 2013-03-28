@@ -30,6 +30,7 @@ module.exports = function CrudService(name, save, schema, options) {
     plural: plural,
     schema: schema,
     idProperty: save.idProperty,
+    idType: save.idType,
     create: function (object, validateOptions, callback) {
 
       if (typeof validateOptions === 'function') {
