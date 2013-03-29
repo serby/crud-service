@@ -2,7 +2,7 @@
   "author": "Paul Serby <paul@serby.net>",
   "name": "crud-service",
   "description": "Create a crud service by combining schemata and save",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "tags": [],
   "repository": {
     "type": "git",
