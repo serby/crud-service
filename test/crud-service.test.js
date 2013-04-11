@@ -8,20 +8,27 @@ function createContactCrudService() {
     , schema = require('schemata')(
       { _id:
         { type: String
+        , tag: ['a', 'b']
         }
       , name:
         { type: String
+        , tag: ['a']
         , validators:
           { all: [validity.required]
           }
         }
       , email:
         { type: String
+        , tag: ['b']
         ,  validators:
           { all: [validity.required]
           }
         }
-      })
+      , mobile:
+        { type: String
+        , tag: ['c']
+        }
+    })
 
   return crudService('Contact', save, schema)
 }
@@ -29,7 +36,7 @@ function createContactCrudService() {
 var should = require('should')
   , _ = require('lodash')
   , fixtures = {
-  contact: { name: 'Paul', email: 'paul@serby.net'}
+  contact: { name: 'Paul', email: 'paul@serby.net', mobile: null }
 }
 
 describe('crud-service', function () {
@@ -60,6 +67,59 @@ describe('crud-service', function () {
         })
 
     })
+
+    describe('options', function () {
+      it('should only store and validate tagged options', function (done) {
+        service.create(
+          { name: 'Paul'
+          , email: 'paul@serby.net'
+          }, { tag: 'a' }, function (error, newObject) {
+            should.not.exist(error)
+            should.not.exist(newObject.email)
+            done()
+          })
+      })
+
+      it('should validate all properties even with .persist tag is set', function (done) {
+        service.create(
+          { name: 'Paul'
+          , email: 'paul@serby.net'
+          }, { persist: 'a' }, function (error) {
+            error.errors.should.eql({ email: 'Email is required' })
+            done()
+          })
+      })
+
+      it('should only store tagged options', function (done) {
+        service.create(
+          { name: 'Paul'
+          , email: 'paul@serby.net'
+          }, { persist: 'b', validate: 'b' }, function (error, newObject) {
+
+            should.not.exist(newObject.name)
+            should.exist(newObject.email)
+            done()
+          })
+      })
+
+      it('should only validate tagged options', function (done) {
+        service.create(
+          {}, { validate: 'b' }, function (error) {
+            error.errors.should.eql({ email: 'Email is required' })
+            done()
+          })
+      })
+
+      it('should error when only persist tagged but not validation', function (done) {
+        service.create(
+          { name: 'Paul'
+          }, { persist: 'c' }, function (error) {
+            error.errors.should.eql({ name: 'Name is required', email: 'Email is required' })
+            done()
+          })
+      })
+    })
+
 
   })
 
@@ -140,6 +200,62 @@ describe('crud-service', function () {
         })
 
     })
+
+    describe('options', function () {
+      it('should only store and validate tagged options', function (done) {
+        service.update(
+          { _id: id
+          , name: 'Paul'
+          , email: 'Foo'
+          }, { tag: 'a' }, function (error, newObject) {
+            should.not.exist(error)
+            newObject.email.should.equal('paul@serby.net')
+            done()
+          })
+      })
+
+      it('should validate all properties even with .persist tag is set', function (done) {
+        service.create(
+          { _id: id
+          , name: 'Paul'
+          , email: 'paul@serby.net'
+          }, { persist: 'a' }, function (error) {
+            error.errors.should.eql({ email: 'Email is required' })
+            done()
+          })
+      })
+
+      it('should only store tagged options', function (done) {
+        service.create(
+          { _id: id
+          , name: 'Paul'
+          , email: 'paul@serby.net'
+          }, { persist: 'b', validate: 'b' }, function (error, newObject) {
+
+            should.not.exist(newObject.name)
+            should.exist(newObject.email)
+            done()
+          })
+      })
+
+      it('should only validate tagged options', function (done) {
+        service.create(
+          {}, { validate: 'b' }, function (error) {
+            error.errors.should.eql({ email: 'Email is required' })
+            done()
+          })
+      })
+
+      it('should error when only persist tagged but not validation', function (done) {
+        service.create(
+          { name: 'Paul'
+          }, { persist: 'c' }, function (error) {
+            error.errors.should.eql({ name: 'Name is required', email: 'Email is required' })
+            done()
+          })
+      })
+    })
+
   })
 
   describe('partialUpdate()', function () {

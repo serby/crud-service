@@ -31,21 +31,21 @@ module.exports = function CrudService(name, save, schema, options) {
     schema: schema,
     idProperty: save.idProperty,
     idType: save.idType,
-    create: function (object, validateOptions, callback) {
+    create: function (object, createOptions, callback) {
 
-      if (typeof validateOptions === 'function') {
-        callback = validateOptions
+      if (typeof createOptions === 'function') {
+        callback = createOptions
       }
 
       callback = callback || emptyFn
 
-      var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), validateOptions.tag))
+      var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), createOptions.persist || createOptions.tag))
 
       pre.createValidate.run(cleanObject, function (error, pipedObject) {
         if (error) {
           return callback(error)
         }
-        schema.validate(pipedObject, validateOptions.set, validateOptions.tag, function (error, validationErrors) {
+        schema.validate(pipedObject, createOptions.set, createOptions.validate || createOptions.tag, function (error, validationErrors) {
           if (error) {
             return callback(error)
           }
@@ -76,16 +76,16 @@ module.exports = function CrudService(name, save, schema, options) {
         callback(undefined, schema.stripUnknownProperties(object))
       })
     },
-    update: function (object, validateOptions, callback) {
+    update: function (object, updateOptions, callback) {
       callback = callback || emptyFn
 
-      var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), validateOptions.tag))
+      var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), updateOptions.persist || updateOptions.tag))
 
       pre.updateValidate.run(cleanObject, function (error, pipedObject) {
         if (error) {
           return callback(error)
         }
-        schema.validate(pipedObject, validateOptions.set, validateOptions.tag,
+        schema.validate(pipedObject, updateOptions.set, updateOptions.validate || updateOptions.tag,
           function (error, validationErrors) {
           if (error) {
             return callback(error)
@@ -111,11 +111,11 @@ module.exports = function CrudService(name, save, schema, options) {
         })
       })
     },
-    partialUpdate: function (object, validateOptions, callback) {
+    partialUpdate: function (object, updateOptions, callback) {
       callback = callback || emptyFn
 
-      if (typeof validateOptions === 'function') {
-        callback = validateOptions
+      if (typeof updateOptions === 'function') {
+        callback = updateOptions
       }
 
       if (!object[save.idProperty]) {
@@ -134,13 +134,13 @@ module.exports = function CrudService(name, save, schema, options) {
 
         readObject = extend(readObject, object)
 
-        var cleanObject = schema.cast(schema.stripUnknownProperties(readObject, validateOptions.tag))
+        var cleanObject = schema.cast(schema.stripUnknownProperties(readObject, updateOptions.persist || updateOptions.tag))
 
         pre.partialValidate.run(cleanObject, function (error, pipedObject) {
           if (error) {
             return callback(error)
           }
-          schema.validate(pipedObject, validateOptions.set, validateOptions.tag,
+          schema.validate(pipedObject, updateOptions.set, updateOptions.validate || updateOptions.tag,
             function (error, validationErrors) {
             if (error) {
               return callback(error)
