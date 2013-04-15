@@ -48,8 +48,6 @@ describe('crud-service', function () {
       service = createContactCrudService()
     })
 
-    it('should')
-
     it('should strip unknown properties', function (done) {
 
       service.pre('create', function (object, cb) {
@@ -65,6 +63,20 @@ describe('crud-service', function () {
           should.not.exist(newObject.extraneous)
           done()
         })
+
+    })
+
+    it('should emit create', function (done) {
+
+      service.on('create', function (obj) {
+        obj.name.should.equal('Paul Serby')
+        done()
+      })
+
+      service.create(
+        { name: 'Paul Serby'
+        , email: 'paul@serby.net'
+        }, function () {})
 
     })
 
@@ -201,6 +213,23 @@ describe('crud-service', function () {
 
     })
 
+
+
+    it('should emit update', function (done) {
+
+      service.on('update', function (obj) {
+        obj.name.should.equal('Paul Serby')
+        done()
+      })
+
+      service.update(
+        { name: 'Paul Serby'
+        , email: 'paul@serby.net'
+        , _id: id
+        }, {}, function () {})
+
+    })
+
     describe('options', function () {
       it('should only store and validate tagged options', function (done) {
         service.update(
@@ -323,6 +352,23 @@ describe('crud-service', function () {
           done()
         })
 
+    })
+
+
+    it('should emit partialUpdate', function (done) {
+
+      service.on('partialUpdate', function (obj) {
+        obj.name.should.equal('Paul Serby')
+        done()
+      })
+
+      service.partialUpdate(
+        { name: 'Paul Serby'
+        , _id: id
+        }, {}, function (error, object) {
+          should.not.exist(error)
+          should.not.exist(object.extraneous)
+        })
     })
 
   })
