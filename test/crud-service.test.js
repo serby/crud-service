@@ -1,11 +1,23 @@
 var emptyFn = function () {}
   , validity = require('validity')
   , should = require('should')
+  , schemata = require('schemata')
 
 function createContactCrudService() {
   var crudService = require('..')
     , save = require('save')('test', { logger: { info: emptyFn }})
-    , schema = require('schemata')(
+    , subSchema = schemata(
+      { thread:
+        { type: String
+        , tag: ['a']
+        }
+      , comment:
+        { type: String
+        , tag: ['c']
+        }
+      }
+    )
+    , schema = schemata(
       { _id:
         { type: String
         , tag: ['a', 'b']
@@ -28,7 +40,12 @@ function createContactCrudService() {
         { type: String
         , tag: ['c']
         }
-    })
+      , comments:
+        { type: schemata.Array(subSchema)
+        , tag: ['a']
+        }
+      }
+    )
 
   return crudService('Contact', save, schema)
 }
@@ -36,7 +53,7 @@ function createContactCrudService() {
 var should = require('should')
   , _ = require('lodash')
   , fixtures = {
-  contact: { name: 'Paul', email: 'paul@serby.net', mobile: null }
+  contact: { name: 'Paul', email: 'paul@serby.net', mobile: null, comments: [] }
 }
 
 describe('crud-service', function () {
@@ -110,6 +127,57 @@ describe('crud-service', function () {
 
             should.not.exist(newObject.name)
             should.exist(newObject.email)
+            done()
+          })
+      })
+
+      it('should store sub-schema properties regardless of tag if ignoreTagForSubSchemas is true', function(done) {
+        service.create(
+          { name: 'Paul'
+          , email: 'paul@serby.net'
+          , comments:
+            [ { thread: 'My Thread'
+              , comment: 'My Comment'
+              }
+            , { thread: 'My Thread 2'
+              , comment: 'My Second Comment'
+              }
+            ]
+          }, { tag: 'a', ignoreTagForSubSchema: true }, function (error, newObject) {
+            should.not.exist(error)
+
+            should.not.exist(newObject.email)
+
+            newObject.comments[0].comment.should.equal('My Comment')
+            newObject.comments[0].thread.should.equal('My Thread')
+            newObject.comments[1].comment.should.equal('My Second Comment')
+            newObject.comments[1].thread.should.equal('My Thread 2')
+            done()
+          })
+      })
+
+      it('should store sub-schema properties with tag if ignoreTagForSubSchemas is false', function(done) {
+        service.create(
+          { name: 'Paul'
+          , email: 'paul@serby.net'
+          , comments:
+            [ { thread: 'My Thread'
+              , comment: 'My Comment'
+              }
+            , { thread: 'My Thread 2'
+              , comment: 'My Second Comment'
+              }
+            ]
+          }, { tag: 'a', ignoreTagForSubSchema: false }, function (error, newObject) {
+            should.not.exist(error)
+
+            should.not.exist(newObject.email)
+
+            should.not.exist(newObject.comments[0].comment)
+            newObject.comments[0].thread.should.equal('My Thread')
+
+            should.not.exist(newObject.comments[0].comment)
+            newObject.comments[1].thread.should.equal('My Thread 2')
             done()
           })
       })
@@ -213,8 +281,6 @@ describe('crud-service', function () {
 
     })
 
-
-
     it('should emit update', function (done) {
 
       service.on('update', function (obj) {
@@ -244,7 +310,7 @@ describe('crud-service', function () {
       })
 
       it('should validate all properties even with .persist tag is set', function (done) {
-        service.create(
+        service.update(
           { _id: id
           , name: 'Paul'
           , email: 'paul@serby.net'
@@ -255,14 +321,67 @@ describe('crud-service', function () {
       })
 
       it('should only store tagged options', function (done) {
-        service.create(
+        service.update(
           { _id: id
-          , name: 'Paul'
+          , name: 'Paulo'
           , email: 'paul@serby.net'
           }, { persist: 'b', validate: 'b' }, function (error, newObject) {
 
-            should.not.exist(newObject.name)
+            newObject.name.should.eql('Paul')
             should.exist(newObject.email)
+            done()
+          })
+      })
+
+      it('should store sub-schema properties regardless of tag if ignoreTagForSubSchemas is true', function(done) {
+        service.update(
+          { _id: id
+          , name: 'Paul'
+          , email: 'foo'
+          , comments:
+            [ { thread: 'My Thread'
+              , comment: 'My Comment'
+              }
+            , { thread: 'My Thread 2'
+              , comment: 'My Second Comment'
+              }
+            ]
+          }, { tag: 'a', ignoreTagForSubSchema: true }, function (error, newObject) {
+            should.not.exist(error)
+
+            newObject.email.should.equal('paul@serby.net')
+
+            newObject.comments[0].comment.should.equal('My Comment')
+            newObject.comments[0].thread.should.equal('My Thread')
+            newObject.comments[1].comment.should.equal('My Second Comment')
+            newObject.comments[1].thread.should.equal('My Thread 2')
+            done()
+          })
+      })
+
+      it('should store sub-schema properties with tag if ignoreTagForSubSchemas is false', function(done) {
+        service.update(
+          { _id: id
+          , name: 'Paul'
+          , email: 'foo'
+          , comments:
+            [ { thread: 'My Thread'
+              , comment: 'My Comment'
+              }
+            , { thread: 'My Thread 2'
+              , comment: 'My Second Comment'
+              }
+            ]
+          }, { tag: 'a', ignoreTagForSubSchema: false }, function (error, newObject) {
+            should.not.exist(error)
+
+            newObject.email.should.equal('paul@serby.net')
+
+            should.not.exist(newObject.comments[0].comment)
+            newObject.comments[0].thread.should.equal('My Thread')
+
+            should.not.exist(newObject.comments[0].comment)
+            newObject.comments[1].thread.should.equal('My Thread 2')
             done()
           })
       })
