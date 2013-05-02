@@ -3,7 +3,7 @@ var emptyFn = function () {}
   , should = require('should')
   , schemata = require('schemata')
 
-function createContactCrudService() {
+function createContactCrudService(ignoreTagForSubSchema) {
   var crudService = require('..')
     , save = require('save')('test', { logger: { info: emptyFn }})
     , subSchema = schemata(
@@ -47,7 +47,9 @@ function createContactCrudService() {
       }
     )
 
-  return crudService('Contact', save, schema)
+  var options = { ignoreTagForSubSchema: ignoreTagForSubSchema }
+
+  return crudService('Contact', save, schema, options)
 }
 
 var should = require('should')
@@ -132,6 +134,9 @@ describe('crud-service', function () {
       })
 
       it('should store sub-schema properties regardless of tag if ignoreTagForSubSchemas is true', function(done) {
+        //Set ignoreTagForSubSchema to true
+        service = createContactCrudService(true)
+
         service.create(
           { name: 'Paul'
           , email: 'paul@serby.net'
@@ -143,7 +148,7 @@ describe('crud-service', function () {
               , comment: 'My Second Comment'
               }
             ]
-          }, { tag: 'a', ignoreTagForSubSchema: true }, function (error, newObject) {
+          }, { tag: 'a' }, function (error, newObject) {
             should.not.exist(error)
 
             should.not.exist(newObject.email)
@@ -168,7 +173,7 @@ describe('crud-service', function () {
               , comment: 'My Second Comment'
               }
             ]
-          }, { tag: 'a', ignoreTagForSubSchema: false }, function (error, newObject) {
+          }, { tag: 'a' }, function (error, newObject) {
             should.not.exist(error)
 
             should.not.exist(newObject.email)
@@ -334,28 +339,42 @@ describe('crud-service', function () {
       })
 
       it('should store sub-schema properties regardless of tag if ignoreTagForSubSchemas is true', function(done) {
-        service.update(
-          { _id: id
-          , name: 'Paul'
-          , email: 'foo'
-          , comments:
-            [ { thread: 'My Thread'
-              , comment: 'My Comment'
-              }
-            , { thread: 'My Thread 2'
-              , comment: 'My Second Comment'
-              }
-            ]
-          }, { tag: 'a', ignoreTagForSubSchema: true }, function (error, newObject) {
-            should.not.exist(error)
+        //Set ignoreTagForSubSchema to true and set up initial object
+        service = createContactCrudService(true)
+        service.pre('update', function (object, cb) {
+          object.extraneous = 'remove me'
+          cb(null, object)
+        })
 
-            newObject.email.should.equal('paul@serby.net')
+        service.create(
+          { name: 'Paul'
+          , email: 'paul@serby.net'
+          }, function (error, newObject) {
+            id = newObject._id
 
-            newObject.comments[0].comment.should.equal('My Comment')
-            newObject.comments[0].thread.should.equal('My Thread')
-            newObject.comments[1].comment.should.equal('My Second Comment')
-            newObject.comments[1].thread.should.equal('My Thread 2')
-            done()
+            service.update(
+              { _id: id
+              , name: 'Paul'
+              , email: 'foo'
+              , comments:
+                [ { thread: 'My Thread Updated'
+                  , comment: 'My Comment Updated'
+                  }
+                , { thread: 'My Thread 2 Updated'
+                  , comment: 'My Second Comment Updated'
+                  }
+                ]
+              }, { tag: 'a', ignoreTagForSubSchema: true }, function (error, newObject) {
+                should.not.exist(error)
+
+                newObject.email.should.equal('paul@serby.net')
+
+                newObject.comments[0].comment.should.equal('My Comment Updated')
+                newObject.comments[0].thread.should.equal('My Thread Updated')
+                newObject.comments[1].comment.should.equal('My Second Comment Updated')
+                newObject.comments[1].thread.should.equal('My Thread 2 Updated')
+                done()
+              })
           })
       })
 
@@ -365,10 +384,10 @@ describe('crud-service', function () {
           , name: 'Paul'
           , email: 'foo'
           , comments:
-            [ { thread: 'My Thread'
+            [ { thread: 'My Thread Updated'
               , comment: 'My Comment'
               }
-            , { thread: 'My Thread 2'
+            , { thread: 'My Thread 2 Updated'
               , comment: 'My Second Comment'
               }
             ]
@@ -378,10 +397,10 @@ describe('crud-service', function () {
             newObject.email.should.equal('paul@serby.net')
 
             should.not.exist(newObject.comments[0].comment)
-            newObject.comments[0].thread.should.equal('My Thread')
+            newObject.comments[0].thread.should.equal('My Thread Updated')
 
             should.not.exist(newObject.comments[0].comment)
-            newObject.comments[1].thread.should.equal('My Thread 2')
+            newObject.comments[1].thread.should.equal('My Thread 2 Updated')
             done()
           })
       })

@@ -8,6 +8,7 @@ module.exports = function CrudService(name, save, schema, options) {
   var slug = (options && options.slug) ? options.slug : name.toLowerCase().replace(/ /g, '')
     , plural = (options && options.plural) ? options.plural : name + 's'
     , self = new events.EventEmitter()
+    , ignoreTagForSubSchema = (options && options.ignoreTagForSubSchema) ? options.ignoreTagForSubSchema : false
 
   var pre = {
     create: Pipe.createPipe(),
@@ -39,7 +40,7 @@ module.exports = function CrudService(name, save, schema, options) {
 
       callback = callback || emptyFn
 
-      var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), createOptions.persist || createOptions.tag, createOptions.ignoreTagForSubSchema))
+      var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), createOptions.persist || createOptions.tag, ignoreTagForSubSchema))
 
       pre.createValidate.run(cleanObject, function (error, pipedObject) {
         if (error) {
@@ -79,7 +80,7 @@ module.exports = function CrudService(name, save, schema, options) {
     update: function (object, updateOptions, callback) {
       callback = callback || emptyFn
 
-      var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), updateOptions.persist || updateOptions.tag, updateOptions.ignoreTagForSubSchema))
+      var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), updateOptions.persist || updateOptions.tag, ignoreTagForSubSchema))
 
       pre.updateValidate.run(cleanObject, function (error, pipedObject) {
         if (error) {
