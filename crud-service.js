@@ -39,7 +39,7 @@ module.exports = function CrudService(name, save, schema, options) {
 
       callback = callback || emptyFn
 
-      var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), createOptions.persist || createOptions.tag))
+      var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), createOptions.persist || createOptions.tag, createOptions.ignoreTagForSubSchema))
 
       pre.createValidate.run(cleanObject, function (error, pipedObject) {
         if (error) {
@@ -79,7 +79,7 @@ module.exports = function CrudService(name, save, schema, options) {
     update: function (object, updateOptions, callback) {
       callback = callback || emptyFn
 
-      var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), updateOptions.persist || updateOptions.tag))
+      var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), updateOptions.persist || updateOptions.tag, updateOptions.ignoreTagForSubSchema))
 
       pre.updateValidate.run(cleanObject, function (error, pipedObject) {
         if (error) {
