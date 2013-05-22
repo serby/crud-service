@@ -205,6 +205,19 @@ module.exports = function CrudService(name, save, schema, options) {
         }))
       })
     },
+    findOne: function (query, options, callback) {
+      if (typeof options === 'function') {
+        callback = options
+        options = {}
+      }
+      save.findOne.call(save, query, options, function (error, objects) {
+        if (error) return callback(error)
+        if (!objects.length) return callback(undefined, objects)
+        callback(undefined, objects.map(function (object) {
+          return schema.stripUnknownProperties(object)
+        }))
+      })
+    },
     pre: function (method, processor) {
       return pre[method].add(processor)
     }

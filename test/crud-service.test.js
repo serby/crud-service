@@ -551,6 +551,92 @@ describe('crud-service', function () {
 
     })
 
+    it('should return an array of elements', function (done) {
+
+      var service = createContactCrudService()
+
+      service.pre('create', function (object, cb) {
+        object.extraneous = 'remove me'
+        cb(null, object)
+      })
+
+      service.create(
+        { name: 'Paul'
+        , email: 'paul@serby.net'
+        }, function () {
+          service.create(
+            { name: 'Ben'
+            , email: 'bn@grly.me'
+            }, function () {
+              service.find({ name: 'Ben'}, function (error, objects) {
+                should.not.exist(error)
+                objects.should.be.an.instanceOf(Array)
+                done()
+              })
+            })
+        })
+
+    })
+
+  })
+
+  describe('findOne()', function () {
+    it('should strip unknown properties', function (done) {
+
+      var service = createContactCrudService()
+
+      service.pre('create', function (object, cb) {
+        object.extraneous = 'remove me'
+        cb(null, object)
+      })
+
+      service.create(
+        { name: 'Paul'
+        , email: 'paul@serby.net'
+        }, function () {
+          service.create(
+            { name: 'Ben'
+            , email: 'bn@grly.me'
+            }, function () {
+              service.find({ name: 'Ben'}, function (error, objects) {
+                should.not.exist(error)
+                objects.forEach(function (object) {
+                  should.not.exist(object.extraneous)
+                })
+                done()
+              })
+            })
+        })
+
+    })
+
+    it('should return a single element', function (done) {
+
+      var service = createContactCrudService()
+
+      service.pre('create', function (object, cb) {
+        cb(null, object)
+      })
+
+      service.create(
+        { name: 'Paul'
+        , email: 'paul@serby.net'
+        }, function () {
+          service.create(
+            { name: 'Ben'
+            , email: 'bn@grly.me'
+            }, function () {
+              service.findOne({ name: 'Ben'}, function (error, objects) {
+                should.not.exist(error)
+                objects.should.not.be.an.instanceOf(Array)
+                objects.should.be.an.instanceOf(Object)
+                done()
+              })
+            })
+        })
+
+    })
+
   })
 
   describe('count()', function () {
