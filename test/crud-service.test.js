@@ -116,6 +116,7 @@ describe('crud-service', function () {
           { name: 'Paul'
           , email: 'paul@serby.net'
           }, { persist: 'a' }, function (error) {
+            error.name.should.eql('ValidationError');
             error.errors.should.eql({ email: 'Email is required' })
             done()
           })
@@ -190,6 +191,7 @@ describe('crud-service', function () {
       it('should only validate tagged options', function (done) {
         service.create(
           {}, { validate: 'b' }, function (error) {
+            error.name.should.eql('ValidationError');
             error.errors.should.eql({ email: 'Email is required' })
             done()
           })
@@ -199,6 +201,7 @@ describe('crud-service', function () {
         service.create(
           { name: 'Paul'
           }, { persist: 'c' }, function (error) {
+            error.name.should.eql('ValidationError');
             error.errors.should.eql({ name: 'Name is required', email: 'Email is required' })
             done()
           })
@@ -320,6 +323,7 @@ describe('crud-service', function () {
           , name: 'Paul'
           , email: 'paul@serby.net'
           }, { persist: 'a' }, function (error) {
+            error.name.should.eql('ValidationError');
             error.errors.should.eql({ email: 'Email is required' })
             done()
           })
@@ -408,6 +412,7 @@ describe('crud-service', function () {
       it('should only validate tagged options', function (done) {
         service.create(
           {}, { validate: 'b' }, function (error) {
+            error.name.should.eql('ValidationError');
             error.errors.should.eql({ email: 'Email is required' })
             done()
           })
@@ -417,6 +422,7 @@ describe('crud-service', function () {
         service.create(
           { name: 'Paul'
           }, { persist: 'c' }, function (error) {
+            error.name.should.eql('ValidationError');
             error.errors.should.eql({ name: 'Name is required', email: 'Email is required' })
             done()
           })

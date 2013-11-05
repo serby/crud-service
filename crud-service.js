@@ -51,7 +51,7 @@ module.exports = function CrudService(name, save, schema, options) {
             return callback(error)
           }
           if (Object.keys(validationErrors).length > 0) {
-            var validationError = new Error('Validation Error')
+            var validationError = new ValidationError()
             validationError.errors = validationErrors
             return callback(validationError, pipedObject)
           }
@@ -92,7 +92,7 @@ module.exports = function CrudService(name, save, schema, options) {
             return callback(error)
           }
           if (Object.keys(validationErrors).length > 0) {
-            var validationError = new Error('Validation Error')
+            var validationError = new ValidationError()
             validationError.errors = validationErrors
             return callback(validationError, pipedObject)
           }
@@ -147,7 +147,7 @@ module.exports = function CrudService(name, save, schema, options) {
               return callback(error)
             }
             if (Object.keys(validationErrors).length > 0) {
-              var validationError = new Error('Validation Error')
+              var validationError = new ValidationError()
               validationError.errors = validationErrors
               return callback(validationError, pipedObject)
             }
@@ -210,3 +210,12 @@ module.exports = function CrudService(name, save, schema, options) {
     }
   })
 }
+
+// Subclass of `Error`, but with problems: http://stackoverflow.com/a/871646
+function ValidationError(message) {
+  this.message = message;
+}
+
+ValidationError.prototype = Object.create(Error.prototype);
+ValidationError.prototype.name = 'ValidationError';
+ValidationError.prototype.constructor = ValidationError;
