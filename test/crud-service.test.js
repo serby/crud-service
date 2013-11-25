@@ -301,6 +301,18 @@ describe('crud-service', function () {
 
     })
 
+    it('should use callback when no options are set', function (done) {
+
+      service.update(
+        { name: 'Paul Serby'
+        , email: 'paul@serby.net'
+        , _id: id
+        }, function () {
+          done()
+        })
+
+    })
+
     describe('options', function () {
       it('should only store and validate tagged options', function (done) {
         service.update(
