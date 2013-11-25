@@ -78,6 +78,11 @@ module.exports = function CrudService(name, save, schema, options) {
       })
     },
     update: function (object, updateOptions, callback) {
+      if (typeof updateOptions === 'function') {
+        callback = updateOptions
+        updateOptions = {}
+      }
+
       callback = callback || emptyFn
 
       var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), updateOptions.persist || updateOptions.tag, ignoreTagForSubSchema))
