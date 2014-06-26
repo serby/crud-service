@@ -99,6 +99,36 @@ describe('crud-service', function () {
 
     })
 
+    it('should emit create with createOptions', function (done) {
+
+      service.on('create', function (obj, options) {
+        obj.name.should.equal('Paul Serby')
+        options.test.should.equal('Test')
+        done()
+      })
+
+      service.create(
+        { name: 'Paul Serby'
+        , email: 'paul@serby.net'
+        }, { test: 'Test' }, function () {})
+
+    })
+
+    it('should emit create with an empty createOptions if none defined', function (done) {
+
+      service.on('create', function (obj, options) {
+        obj.name.should.equal('Paul Serby')
+        should.deepEqual(options, {})
+        done()
+      })
+
+      service.create(
+        { name: 'Paul Serby'
+        , email: 'paul@serby.net'
+        }, function () {})
+
+    })
+
     describe('options', function () {
       it('should only store and validate tagged options', function (done) {
         service.create(
@@ -245,8 +275,8 @@ describe('crud-service', function () {
           service.read(newObject._id, function (error, object) {
             should.not.exist(error)
             should.not.exist(object.extraneous)
+            done()
           })
-          done()
         })
 
     })
@@ -301,6 +331,38 @@ describe('crud-service', function () {
 
     })
 
+    it('should emit update with updateOptions', function (done) {
+
+      service.on('update', function (obj, options) {
+        obj.name.should.equal('Paul Serby')
+        options.test.should.equal('Test')
+        done()
+      })
+
+      service.update(
+        { name: 'Paul Serby'
+        , email: 'paul@serby.net'
+        , _id: id
+        }, { test: 'Test' }, function () {})
+
+    })
+
+    it('should emit update with an empty updateOptions if none defined', function (done) {
+
+      service.on('update', function (obj, options) {
+        obj.name.should.equal('Paul Serby')
+        should.deepEqual(options, {})
+        done()
+      })
+
+      service.update(
+        { name: 'Paul Serby'
+        , email: 'paul@serby.net'
+        , _id: id
+        }, function () {})
+
+    })
+
     it('should use callback when no options are set', function (done) {
 
       service.update(
@@ -350,7 +412,7 @@ describe('crud-service', function () {
           })
       })
 
-      it('should store sub-schema properties regardless of tag if ignoreTagForSubSchemas is true', function(done) {
+      it('should store sub-schema properties regardless of tag if ignoreTagForSubSchemas is true', function (done) {
         //Set ignoreTagForSubSchema to true and set up initial object
         service = createContactCrudService(true)
         service.pre('update', function (object, cb) {
@@ -390,7 +452,7 @@ describe('crud-service', function () {
           })
       })
 
-      it('should store sub-schema properties with tag if ignoreTagForSubSchemas is false', function(done) {
+      it('should store sub-schema properties with tag if ignoreTagForSubSchemas is false', function (done) {
         service.update(
           { _id: id
           , name: 'Paul'
@@ -519,6 +581,38 @@ describe('crud-service', function () {
           should.not.exist(error)
           should.not.exist(object.extraneous)
         })
+    })
+
+    it('should emit partialUpdate with original object', function (done) {
+
+      service.on('partialUpdate', function (obj, originalObj) {
+        obj.name.should.equal('Paul Serby')
+        originalObj.name.should.equal('Paul')
+        done()
+      })
+
+      service.partialUpdate(
+        { name: 'Paul Serby'
+        , email: 'paul@serby.net'
+        , _id: id
+        }, function () {})
+
+    })
+
+    it('should emit partialUpdate with updateOptions', function (done) {
+
+      service.on('partialUpdate', function (obj, originalObj, options) {
+        obj.name.should.equal('Paul Serby')
+        options.test.should.equal('Test')
+        done()
+      })
+
+      service.partialUpdate(
+        { name: 'Paul Serby'
+        , email: 'paul@serby.net'
+        , _id: id
+        }, { test: 'Test' }, function () {})
+
     })
 
   })
