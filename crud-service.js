@@ -36,6 +36,7 @@ module.exports = function CrudService(name, save, schema, options) {
 
       if (typeof createOptions === 'function') {
         callback = createOptions
+        createOptions = {}
       }
 
       callback = callback || emptyFn
@@ -63,7 +64,7 @@ module.exports = function CrudService(name, save, schema, options) {
               if (error) {
                 return callback(error)
               }
-              self.emit('create', savedObject)
+              self.emit('create', savedObject, createOptions)
               callback(undefined, schema.stripUnknownProperties(savedObject))
             })
           })
@@ -78,6 +79,11 @@ module.exports = function CrudService(name, save, schema, options) {
       })
     },
     update: function (object, updateOptions, callback) {
+      if (typeof updateOptions === 'function') {
+        callback = updateOptions
+        updateOptions = {}
+      }
+
       callback = callback || emptyFn
 
       var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), updateOptions.persist || updateOptions.tag, ignoreTagForSubSchema))
@@ -104,7 +110,7 @@ module.exports = function CrudService(name, save, schema, options) {
               if (error) {
                 return callback(error)
               }
-              self.emit('update', savedObject)
+              self.emit('update', savedObject, updateOptions)
               if (!savedObject) return callback(undefined, undefined)
               callback(undefined, schema.stripUnknownProperties(savedObject))
             })
@@ -117,6 +123,7 @@ module.exports = function CrudService(name, save, schema, options) {
 
       if (typeof updateOptions === 'function') {
         callback = updateOptions
+        updateOptions = {}
       }
 
       if (!object[save.idProperty]) {
@@ -133,9 +140,10 @@ module.exports = function CrudService(name, save, schema, options) {
           return callback(new Error('Couldn\'t find object with an ' + save.idProperty + ' of ' + object[save.idProperty]))
         }
 
-        readObject = extend(readObject, object)
-
-        var cleanObject = schema.cast(schema.stripUnknownProperties(readObject, updateOptions.persist || updateOptions.tag))
+        // extend overrides the original object, the original readObject is still needed
+        var readObjectCloned = extend({}, readObject)
+          , updatedObject = extend(readObjectCloned, object)
+          , cleanObject = schema.cast(schema.stripUnknownProperties(updatedObject, updateOptions.persist || updateOptions.tag))
 
         pre.partialValidate.run(cleanObject, function (error, pipedObject) {
           if (error) {
@@ -164,7 +172,7 @@ module.exports = function CrudService(name, save, schema, options) {
                 if (error) {
                   return callback(error)
                 }
-                self.emit('partialUpdate', savedObject)
+                self.emit('partialUpdate', savedObject, readObject, updateOptions)
                 if (!savedObject) return callback(undefined, undefined)
                 callback(undefined, schema.stripUnknownProperties(savedObject))
               })
@@ -173,12 +181,17 @@ module.exports = function CrudService(name, save, schema, options) {
         })
       })
     },
-    'delete': function (id, callback) {
+    'delete': function (id, deleteOptions, callback) {
+      if (typeof deleteOptions === 'function') {
+        callback = deleteOptions
+        deleteOptions = {}
+      }
+
       save['delete'](id, function (error) {
         if (error) {
           return callback(error)
         }
-        self.emit('delete', id)
+        self.emit('delete', id, deleteOptions)
         if (typeof callback === 'function') callback()
       })
     },
