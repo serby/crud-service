@@ -21,7 +21,7 @@
   "devDependencies": {
     "mocha": "*",
     "should": "*",
-    "save": "*",
+    "save": "^2.1.1",
     "schemata": "0.0.7",
     "lodash": "*",
     "validity": "*"

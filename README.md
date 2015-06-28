@@ -44,6 +44,8 @@ a [save](https://github.com/serby/save) instance with your preferred engine. A
 
 All `options` arguments are optional.
 
+Omitting `cb` when calling `service.find()` will return a stream.
+
 `service` also has the following method:
 
 #### service.pre(String: hook, Function: processor)

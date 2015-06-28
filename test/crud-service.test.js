@@ -2,6 +2,16 @@ var emptyFn = function () {}
   , validity = require('validity')
   , should = require('should')
   , schemata = require('schemata')
+  , stream = require('stream')
+  , _ = require('lodash')
+  , fixtures =
+    { contact:
+      { name: 'Paul'
+      , email: 'paul@serby.net'
+      , mobile: null
+      , comments: []
+      }
+    }
 
 function createContactCrudService(ignoreTagForSubSchema) {
   var crudService = require('..')
@@ -50,12 +60,6 @@ function createContactCrudService(ignoreTagForSubSchema) {
   var options = { ignoreTagForSubSchema: ignoreTagForSubSchema }
 
   return crudService('Contact', save, schema, options)
-}
-
-var should = require('should')
-  , _ = require('lodash')
-  , fixtures = {
-  contact: { name: 'Paul', email: 'paul@serby.net', mobile: null, comments: [] }
 }
 
 describe('crud-service', function () {
@@ -657,6 +661,36 @@ describe('crud-service', function () {
 
     })
 
+    it('should strip unknown properties when returned as a stream', function (done) {
+
+      var service = createContactCrudService()
+
+      service.pre('create', function (object, cb) {
+        object.extraneous = 'remove me'
+        cb(null, object)
+      })
+
+      service.create(
+        { name: 'Paul'
+        , email: 'paul@serby.net'
+        }, function () {
+          service.create(
+            { name: 'Ben'
+            , email: 'bn@grly.me'
+            }, function () {
+              var validateStream = new stream.Transform({ objectMode: true })
+
+              validateStream._transform = function (item, encoding, done) {
+                should.not.exist(item.extraneous)
+                done(null, item)
+              }
+
+              validateStream.on('finish', done)
+
+              service.find({ name: 'Ben'}).pipe(validateStream)
+            })
+        })
+    })
   })
 
   describe('count()', function () {

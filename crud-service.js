@@ -2,6 +2,7 @@ var extend = require('util')._extend
   , Pipe = require('piton-pipe')
   , emptyFn = function () {}
   , events = require('events')
+  , stream = require('stream')
 
 module.exports = function CrudService(name, save, schema, options) {
 
@@ -210,6 +211,18 @@ module.exports = function CrudService(name, save, schema, options) {
         callback = options
         options = {}
       }
+
+      if (typeof callback === 'undefined') {
+        // user requested a stream
+        var stripPropertiesStream = new stream.Transform({ objectMode: true })
+
+        stripPropertiesStream._transform = function (item, encoding, done) {
+          done(null, schema.stripUnknownProperties(item))
+        }
+
+        return save.find.call(save, query, options).pipe(stripPropertiesStream)
+      }
+
       save.find.call(save, query, options, function (error, objects) {
         if (error) return callback(error)
         if (!objects.length) return callback(undefined, objects)
