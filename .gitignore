@@ -13,5 +13,8 @@ Icon?
 .Spotlight-V100
 .Trashes
 
+#Idea
+.idea
+
 # nodejs npm modules
 /node_modules
