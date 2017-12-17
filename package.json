@@ -10,20 +10,25 @@
   },
   "main": "./crud-service.js",
   "scripts": {
-    "test": "mocha -r should"
+    "test": "jest"
   },
   "engines": {
     "node": ">=6.0.0"
   },
   "dependencies": {
-    "piton-pipe": "*"
+    "async": "^2.6.0",
+    "lodash.clone": "^4.5.0"
   },
   "devDependencies": {
-    "mocha": "*",
-    "should": "*",
-    "save": "^2.1.1",
-    "schemata": "0.0.7",
-    "lodash": "*",
-    "validity": "*"
+    "eslint": "^4.13.1",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jest": "^21.2.1",
+    "save": "^2.3.2",
+    "schemata": "^5.0.0",
+    "validity-required": "^1.0.0"
   }
 }
