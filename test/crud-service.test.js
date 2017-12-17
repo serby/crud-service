@@ -1,22 +1,24 @@
-var emptyFn = function () {}
-  , validity = require('validity')
-  , should = require('should')
-  , schemata = require('schemata')
-  , stream = require('stream')
-  , _ = require('lodash')
-  , fixtures =
+const emptyFn = () => {};
+const validity = require('validity');
+const should = require('should');
+const schemata = require('schemata');
+const stream = require('stream');
+const _ = require('lodash');
+
+const fixtures =
     { contact:
       { name: 'Paul'
       , email: 'paul@serby.net'
       , mobile: null
       , comments: []
       }
-    }
+    };
 
 function createContactCrudService(ignoreTagForSubSchema) {
-  var crudService = require('..')
-    , save = require('save')('test', { logger: { info: emptyFn }})
-    , subSchema = schemata(
+  const crudService = require('..');
+  const save = require('save')('test', { logger: { info: emptyFn }});
+
+  const subSchema = schemata(
       { thread:
         { type: String
         , tag: ['a']
@@ -26,8 +28,9 @@ function createContactCrudService(ignoreTagForSubSchema) {
         , tag: ['c']
         }
       }
-    )
-    , schema = schemata(
+    );
+
+  const schema = schemata(
       { _id:
         { type: String
         , tag: ['a', 'b']
@@ -55,25 +58,25 @@ function createContactCrudService(ignoreTagForSubSchema) {
         , tag: ['a']
         }
       }
-    )
+    );
 
-  var options = { ignoreTagForSubSchema: ignoreTagForSubSchema }
+  const options = { ignoreTagForSubSchema };
 
   return crudService('Contact', save, schema, options)
 }
 
-describe('crud-service', function () {
+describe('crud-service', () => {
 
-  describe('create()', function () {
-    var service
+  describe('create()', () => {
+    let service;
 
-    beforeEach(function () {
+    beforeEach(() => {
       service = createContactCrudService()
     })
 
-    it('should strip unknown properties', function (done) {
+    it('should strip unknown properties', done => {
 
-      service.pre('create', function (object, cb) {
+      service.pre('create', (object, cb) => {
         object.extraneous = 'remove me'
         cb(null, object)
       })
@@ -81,7 +84,7 @@ describe('crud-service', function () {
       service.create(
         { name: 'Paul'
         , email: 'paul@serby.net'
-        }, function (error, newObject) {
+        }, (error, newObject) => {
           should.not.exist(error)
           should.not.exist(newObject.extraneous)
           done()
@@ -89,9 +92,9 @@ describe('crud-service', function () {
 
     })
 
-    it('should emit create', function (done) {
+    it('should emit create', done => {
 
-      service.on('create', function (obj) {
+      service.on('create', obj => {
         obj.name.should.equal('Paul Serby')
         done()
       })
@@ -99,13 +102,13 @@ describe('crud-service', function () {
       service.create(
         { name: 'Paul Serby'
         , email: 'paul@serby.net'
-        }, function () {})
+        }, () => {})
 
     })
 
-    it('should emit create with createOptions', function (done) {
+    it('should emit create with createOptions', done => {
 
-      service.on('create', function (obj, options) {
+      service.on('create', (obj, options) => {
         obj.name.should.equal('Paul Serby')
         options.test.should.equal('Test')
         done()
@@ -114,13 +117,13 @@ describe('crud-service', function () {
       service.create(
         { name: 'Paul Serby'
         , email: 'paul@serby.net'
-        }, { test: 'Test' }, function () {})
+        }, { test: 'Test' }, () => {})
 
     })
 
-    it('should emit create with an empty createOptions if none defined', function (done) {
+    it('should emit create with an empty createOptions if none defined', done => {
 
-      service.on('create', function (obj, options) {
+      service.on('create', (obj, options) => {
         obj.name.should.equal('Paul Serby')
         should.deepEqual(options, {})
         done()
@@ -129,37 +132,37 @@ describe('crud-service', function () {
       service.create(
         { name: 'Paul Serby'
         , email: 'paul@serby.net'
-        }, function () {})
+        }, () => {})
 
     })
 
-    describe('options', function () {
-      it('should only store and validate tagged options', function (done) {
+    describe('options', () => {
+      it('should only store and validate tagged options', done => {
         service.create(
           { name: 'Paul'
           , email: 'paul@serby.net'
-          }, { tag: 'a' }, function (error, newObject) {
+          }, { tag: 'a' }, (error, newObject) => {
             should.not.exist(error)
             should.not.exist(newObject.email)
             done()
           })
       })
 
-      it('should validate all properties even with .persist tag is set', function (done) {
+      it('should validate all properties even with .persist tag is set', done => {
         service.create(
           { name: 'Paul'
           , email: 'paul@serby.net'
-          }, { persist: 'a' }, function (error) {
+          }, { persist: 'a' }, error => {
             error.errors.should.eql({ email: 'Email is required' })
             done()
           })
       })
 
-      it('should only store tagged options', function (done) {
+      it('should only store tagged options', done => {
         service.create(
           { name: 'Paul'
           , email: 'paul@serby.net'
-          }, { persist: 'b', validate: 'b' }, function (error, newObject) {
+          }, { persist: 'b', validate: 'b' }, (error, newObject) => {
 
             should.not.exist(newObject.name)
             should.exist(newObject.email)
@@ -167,7 +170,7 @@ describe('crud-service', function () {
           })
       })
 
-      it('should store sub-schema properties regardless of tag if ignoreTagForSubSchemas is true', function(done) {
+      it('should store sub-schema properties regardless of tag if ignoreTagForSubSchemas is true', done => {
         //Set ignoreTagForSubSchema to true
         service = createContactCrudService(true)
 
@@ -182,7 +185,7 @@ describe('crud-service', function () {
               , comment: 'My Second Comment'
               }
             ]
-          }, { tag: 'a' }, function (error, newObject) {
+          }, { tag: 'a' }, (error, newObject) => {
             should.not.exist(error)
 
             should.not.exist(newObject.email)
@@ -195,7 +198,7 @@ describe('crud-service', function () {
           })
       })
 
-      it('should store sub-schema properties with tag if ignoreTagForSubSchemas is false', function(done) {
+      it('should store sub-schema properties with tag if ignoreTagForSubSchemas is false', done => {
         service.create(
           { name: 'Paul'
           , email: 'paul@serby.net'
@@ -207,7 +210,7 @@ describe('crud-service', function () {
               , comment: 'My Second Comment'
               }
             ]
-          }, { tag: 'a' }, function (error, newObject) {
+          }, { tag: 'a' }, (error, newObject) => {
             should.not.exist(error)
 
             should.not.exist(newObject.email)
@@ -221,18 +224,18 @@ describe('crud-service', function () {
           })
       })
 
-      it('should only validate tagged options', function (done) {
+      it('should only validate tagged options', done => {
         service.create(
-          {}, { validate: 'b' }, function (error) {
+          {}, { validate: 'b' }, error => {
             error.errors.should.eql({ email: 'Email is required' })
             done()
           })
       })
 
-      it('should error when only persist tagged but not validation', function (done) {
+      it('should error when only persist tagged but not validation', done => {
         service.create(
           { name: 'Paul'
-          }, { persist: 'c' }, function (error) {
+          }, { persist: 'c' }, error => {
             error.errors.should.eql({ name: 'Name is required', email: 'Email is required' })
             done()
           })
@@ -242,32 +245,32 @@ describe('crud-service', function () {
 
   })
 
-  describe('read()', function () {
-    var service
-      , id
-      , obj
-    beforeEach(function (done) {
+  describe('read()', () => {
+    let service;
+    let id;
+    let obj;
+    beforeEach(done => {
       service = createContactCrudService()
       service.create(
         { name: 'Paul'
         , email: 'paul@serby.net'
-        }, function (error, newObject) {
+        }, (error, newObject) => {
           id = newObject._id
           obj = newObject
           done()
         })
     })
 
-    it('should cast id param to correct type', function (done) {
-      service.read('' + id, function (error, object) {
+    it('should cast id param to correct type', done => {
+      service.read(`${id}`, (error, object) => {
         object.should.eql(obj)
         done()
       })
     })
 
-    it('should strip unknown properties', function (done) {
+    it('should strip unknown properties', done => {
 
-      service.pre('create', function (object, cb) {
+      service.pre('create', (object, cb) => {
         object.extraneous = 'remove me'
         cb(null, object)
       })
@@ -275,8 +278,8 @@ describe('crud-service', function () {
       service.create(
         { name: 'Paul'
         , email: 'paul@serby.net'
-        }, function (error, newObject) {
-          service.read(newObject._id, function (error, object) {
+        }, (error, newObject) => {
+          service.read(newObject._id, (error, object) => {
             should.not.exist(error)
             should.not.exist(object.extraneous)
             done()
@@ -284,35 +287,34 @@ describe('crud-service', function () {
         })
 
     })
-
   })
 
-  describe('update()', function () {
-    var service
-      , id
+  describe('update()', () => {
+    let service;
+    let id;
 
-    beforeEach(function (done) {
+    beforeEach(done => {
       service = createContactCrudService()
-      service.pre('update', function (object, cb) {
+      service.pre('update', (object, cb) => {
         object.extraneous = 'remove me'
         cb(null, object)
       })
       service.create(
         { name: 'Paul'
         , email: 'paul@serby.net'
-        }, function (error, newObject) {
+        }, (error, newObject) => {
           id = newObject._id
           done()
         })
     })
 
-    it('should strip unknown properties', function (done) {
+    it('should strip unknown properties', done => {
 
       service.update(
         { name: 'Paul Serby'
         , email: 'paul@serby.net'
         , _id: id
-        }, {}, function (error, object) {
+        }, {}, (error, object) => {
           should.not.exist(error)
           should.not.exist(object.extraneous)
           done()
@@ -320,9 +322,9 @@ describe('crud-service', function () {
 
     })
 
-    it('should emit update', function (done) {
+    it('should emit update', done => {
 
-      service.on('update', function (obj) {
+      service.on('update', obj => {
         obj.name.should.equal('Paul Serby')
         done()
       })
@@ -331,13 +333,13 @@ describe('crud-service', function () {
         { name: 'Paul Serby'
         , email: 'paul@serby.net'
         , _id: id
-        }, {}, function () {})
+        }, {}, () => {})
 
     })
 
-    it('should emit update with updateOptions', function (done) {
+    it('should emit update with updateOptions', done => {
 
-      service.on('update', function (obj, options) {
+      service.on('update', (obj, options) => {
         obj.name.should.equal('Paul Serby')
         options.test.should.equal('Test')
         done()
@@ -347,13 +349,13 @@ describe('crud-service', function () {
         { name: 'Paul Serby'
         , email: 'paul@serby.net'
         , _id: id
-        }, { test: 'Test' }, function () {})
+        }, { test: 'Test' }, () => {})
 
     })
 
-    it('should emit update with an empty updateOptions if none defined', function (done) {
+    it('should emit update with an empty updateOptions if none defined', done => {
 
-      service.on('update', function (obj, options) {
+      service.on('update', (obj, options) => {
         obj.name.should.equal('Paul Serby')
         should.deepEqual(options, {})
         done()
@@ -363,52 +365,52 @@ describe('crud-service', function () {
         { name: 'Paul Serby'
         , email: 'paul@serby.net'
         , _id: id
-        }, function () {})
+        }, () => {})
 
     })
 
-    it('should use callback when no options are set', function (done) {
+    it('should use callback when no options are set', done => {
 
       service.update(
         { name: 'Paul Serby'
         , email: 'paul@serby.net'
         , _id: id
-        }, function () {
+        }, () => {
           done()
         })
 
     })
 
-    describe('options', function () {
-      it('should only store and validate tagged options', function (done) {
+    describe('options', () => {
+      it('should only store and validate tagged options', done => {
         service.update(
           { _id: id
           , name: 'Paul'
           , email: 'Foo'
-          }, { tag: 'a' }, function (error, newObject) {
+          }, { tag: 'a' }, (error, newObject) => {
             should.not.exist(error)
             newObject.email.should.equal('paul@serby.net')
             done()
           })
       })
 
-      it('should validate all properties even with .persist tag is set', function (done) {
+      it('should validate all properties even with .persist tag is set', done => {
         service.update(
           { _id: id
           , name: 'Paul'
           , email: 'paul@serby.net'
-          }, { persist: 'a' }, function (error) {
+          }, { persist: 'a' }, error => {
             error.errors.should.eql({ email: 'Email is required' })
             done()
           })
       })
 
-      it('should only store tagged options', function (done) {
+      it('should only store tagged options', done => {
         service.update(
           { _id: id
           , name: 'Paulo'
           , email: 'paul@serby.net'
-          }, { persist: 'b', validate: 'b' }, function (error, newObject) {
+          }, { persist: 'b', validate: 'b' }, (error, newObject) => {
 
             newObject.name.should.eql('Paul')
             should.exist(newObject.email)
@@ -416,10 +418,10 @@ describe('crud-service', function () {
           })
       })
 
-      it('should store sub-schema properties regardless of tag if ignoreTagForSubSchemas is true', function (done) {
+      it('should store sub-schema properties regardless of tag if ignoreTagForSubSchemas is true', done => {
         //Set ignoreTagForSubSchema to true and set up initial object
         service = createContactCrudService(true)
-        service.pre('update', function (object, cb) {
+        service.pre('update', (object, cb) => {
           object.extraneous = 'remove me'
           cb(null, object)
         })
@@ -427,7 +429,7 @@ describe('crud-service', function () {
         service.create(
           { name: 'Paul'
           , email: 'paul@serby.net'
-          }, function (error, newObject) {
+          }, (error, newObject) => {
             id = newObject._id
 
             service.update(
@@ -442,7 +444,7 @@ describe('crud-service', function () {
                   , comment: 'My Second Comment Updated'
                   }
                 ]
-              }, { tag: 'a', ignoreTagForSubSchema: true }, function (error, newObject) {
+              }, { tag: 'a', ignoreTagForSubSchema: true }, (error, newObject) => {
                 should.not.exist(error)
 
                 newObject.email.should.equal('paul@serby.net')
@@ -456,7 +458,7 @@ describe('crud-service', function () {
           })
       })
 
-      it('should store sub-schema properties with tag if ignoreTagForSubSchemas is false', function (done) {
+      it('should store sub-schema properties with tag if ignoreTagForSubSchemas is false', done => {
         service.update(
           { _id: id
           , name: 'Paul'
@@ -469,7 +471,7 @@ describe('crud-service', function () {
               , comment: 'My Second Comment'
               }
             ]
-          }, { tag: 'a', ignoreTagForSubSchema: false }, function (error, newObject) {
+          }, { tag: 'a', ignoreTagForSubSchema: false }, (error, newObject) => {
             should.not.exist(error)
 
             newObject.email.should.equal('paul@serby.net')
@@ -483,67 +485,66 @@ describe('crud-service', function () {
           })
       })
 
-      it('should only validate tagged options', function (done) {
+      it('should only validate tagged options', done => {
         service.create(
-          {}, { validate: 'b' }, function (error) {
+          {}, { validate: 'b' }, error => {
             error.errors.should.eql({ email: 'Email is required' })
             done()
           })
       })
 
-      it('should error when only persist tagged but not validation', function (done) {
+      it('should error when only persist tagged but not validation', done => {
         service.create(
           { name: 'Paul'
-          }, { persist: 'c' }, function (error) {
+          }, { persist: 'c' }, error => {
             error.errors.should.eql({ name: 'Name is required', email: 'Email is required' })
             done()
           })
       })
     })
-
   })
 
-  describe('partialUpdate()', function () {
-    var service
-      , id
-    beforeEach(function (done) {
+  describe('partialUpdate()', () => {
+    let service;
+    let id;
+    beforeEach(done => {
       service = createContactCrudService()
-      service.create({ name: 'Paul', email: 'paul@serby.net'}, function (error, newObject) {
+      service.create({ name: 'Paul', email: 'paul@serby.net'}, (error, newObject) => {
         id = newObject._id
         done()
       })
     })
 
-    it('should only update part of object', function (done) {
-      var partial = { _id: id, name: 'Serby'}
+    it('should only update part of object', done => {
+      const partial = { _id: id, name: 'Serby'};
 
-      service.partialUpdate(partial, function (error, updatedObject) {
+      service.partialUpdate(partial, (error, updatedObject) => {
         should.not.exist(error)
         updatedObject.should.eql(_.extend({}, fixtures.contact, partial))
         done()
       })
     })
 
-    it('should throw an error when target can not be found', function (done) {
+    it('should throw an error when target can not be found', done => {
 
-      var partial = {_id: 'unknown', email: 'noone@nowhere.net'}
+      const partial = {_id: 'unknown', email: 'noone@nowhere.net'};
 
-      service.partialUpdate(partial, function (error) {
+      service.partialUpdate(partial, error => {
 
-        error.message.should.eql('Couldn\'t find object with an _id of ' + partial._id)
+        error.message.should.eql(`Couldn't find object with an _id of ${partial._id}`)
         done()
       })
     })
 
 
-    it('should be preprocessed', function (done) {
+    it('should be preprocessed', done => {
 
-      var partial = { _id: id, name: 'Serby'}
-      service.pre('partialUpdate', function (input, callback) {
+      const partial = { _id: id, name: 'Serby'};
+      service.pre('partialUpdate', (input, callback) => {
         input.name = input.name.toUpperCase()
         callback(null, input)
       })
-      service.partialUpdate(partial, function (error, updatedObject) {
+      service.partialUpdate(partial, (error, updatedObject) => {
 
         should.not.exist(error)
         updatedObject.should.eql(_.extend({}, fixtures.contact, partial,
@@ -552,9 +553,9 @@ describe('crud-service', function () {
       })
     })
 
-    it('should strip unknown properties', function (done) {
+    it('should strip unknown properties', done => {
 
-      service.pre('partialUpdate', function (object, cb) {
+      service.pre('partialUpdate', (object, cb) => {
         object.extraneous = 'remove me'
         cb(null, object)
       })
@@ -562,7 +563,7 @@ describe('crud-service', function () {
       service.partialUpdate(
         { name: 'Paul Serby'
         , _id: id
-        }, {}, function (error, object) {
+        }, {}, (error, object) => {
           should.not.exist(error)
           should.not.exist(object.extraneous)
           done()
@@ -571,9 +572,9 @@ describe('crud-service', function () {
     })
 
 
-    it('should emit partialUpdate', function (done) {
+    it('should emit partialUpdate', done => {
 
-      service.on('partialUpdate', function (obj) {
+      service.on('partialUpdate', obj => {
         obj.name.should.equal('Paul Serby')
         done()
       })
@@ -581,15 +582,15 @@ describe('crud-service', function () {
       service.partialUpdate(
         { name: 'Paul Serby'
         , _id: id
-        }, {}, function (error, object) {
+        }, {}, (error, object) => {
           should.not.exist(error)
           should.not.exist(object.extraneous)
         })
     })
 
-    it('should emit partialUpdate with original object', function (done) {
+    it('should emit partialUpdate with original object', done => {
 
-      service.on('partialUpdate', function (obj, originalObj) {
+      service.on('partialUpdate', (obj, originalObj) => {
         obj.name.should.equal('Paul Serby')
         originalObj.name.should.equal('Paul')
         done()
@@ -599,13 +600,13 @@ describe('crud-service', function () {
         { name: 'Paul Serby'
         , email: 'paul@serby.net'
         , _id: id
-        }, function () {})
+        }, () => {})
 
     })
 
-    it('should emit partialUpdate with updateOptions', function (done) {
+    it('should emit partialUpdate with updateOptions', done => {
 
-      service.on('partialUpdate', function (obj, originalObj, options) {
+      service.on('partialUpdate', (obj, originalObj, options) => {
         obj.name.should.equal('Paul Serby')
         options.test.should.equal('Test')
         done()
@@ -615,28 +616,27 @@ describe('crud-service', function () {
         { name: 'Paul Serby'
         , email: 'paul@serby.net'
         , _id: id
-        }, { test: 'Test' }, function () {})
+        }, { test: 'Test' }, () => {})
 
     })
-
   })
 
-  describe('delete()', function () {
+  describe('delete()', () => {
     it('should')
   })
 
-  describe('deleteMany()', function () {
+  describe('deleteMany()', () => {
     it('should')
   })
 
-  describe('find()', function () {
+  describe('find()', () => {
     it('should')
 
-    it('should strip unknown properties', function (done) {
+    it('should strip unknown properties', done => {
 
-      var service = createContactCrudService()
+      const service = createContactCrudService();
 
-      service.pre('create', function (object, cb) {
+      service.pre('create', (object, cb) => {
         object.extraneous = 'remove me'
         cb(null, object)
       })
@@ -644,14 +644,14 @@ describe('crud-service', function () {
       service.create(
         { name: 'Paul'
         , email: 'paul@serby.net'
-        }, function () {
+        }, () => {
           service.create(
             { name: 'Ben'
             , email: 'bn@grly.me'
-            }, function () {
-              service.find({ name: 'Ben'}, function (error, objects) {
+            }, () => {
+              service.find({ name: 'Ben'}, (error, objects) => {
                 should.not.exist(error)
-                objects.forEach(function (object) {
+                objects.forEach(object => {
                   should.not.exist(object.extraneous)
                 })
                 done()
@@ -661,11 +661,11 @@ describe('crud-service', function () {
 
     })
 
-    it('should strip unknown properties when returned as a stream', function (done) {
+    it('should strip unknown properties when returned as a stream', done => {
 
-      var service = createContactCrudService()
+      const service = createContactCrudService();
 
-      service.pre('create', function (object, cb) {
+      service.pre('create', (object, cb) => {
         object.extraneous = 'remove me'
         cb(null, object)
       })
@@ -673,14 +673,14 @@ describe('crud-service', function () {
       service.create(
         { name: 'Paul'
         , email: 'paul@serby.net'
-        }, function () {
+        }, () => {
           service.create(
             { name: 'Ben'
             , email: 'bn@grly.me'
-            }, function () {
-              var validateStream = new stream.Transform({ objectMode: true })
+            }, () => {
+              const validateStream = new stream.Transform({ objectMode: true });
 
-              validateStream._transform = function (item, encoding, done) {
+              validateStream._transform = (item, encoding, done) => {
                 should.not.exist(item.extraneous)
                 done(null, item)
               }
@@ -693,11 +693,11 @@ describe('crud-service', function () {
     })
   })
 
-  describe('count()', function () {
+  describe('count()', () => {
     it('should')
   })
 
-  describe('pre()', function () {
+  describe('pre()', () => {
     it('should')
   })
 })

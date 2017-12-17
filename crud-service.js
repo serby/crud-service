@@ -1,17 +1,16 @@
-var extend = require('util')._extend
-  , Pipe = require('piton-pipe')
-  , emptyFn = function () {}
-  , events = require('events')
-  , stream = require('stream')
+const extend = require('util')._extend;
+const Pipe = require('piton-pipe');
+const emptyFn = () => {};
+const events = require('events');
+const stream = require('stream');
 
 module.exports = function CrudService(name, save, schema, options) {
+  const slug = (options && options.slug) ? options.slug : name.toLowerCase().replace(/ /g, '');
+  const plural = (options && options.plural) ? options.plural : `${name}s`;
+  const self = new events.EventEmitter();
+  const ignoreTagForSubSchema = (options && options.ignoreTagForSubSchema) ? options.ignoreTagForSubSchema : false;
 
-  var slug = (options && options.slug) ? options.slug : name.toLowerCase().replace(/ /g, '')
-    , plural = (options && options.plural) ? options.plural : name + 's'
-    , self = new events.EventEmitter()
-    , ignoreTagForSubSchema = (options && options.ignoreTagForSubSchema) ? options.ignoreTagForSubSchema : false
-
-  var pre = {
+  const pre = {
     create: Pipe.createPipe(),
     createValidate: Pipe.createPipe(),
     update: Pipe.createPipe(),
@@ -19,21 +18,20 @@ module.exports = function CrudService(name, save, schema, options) {
     partialUpdate: Pipe.createPipe(),
     partialValidate: Pipe.createPipe(),
     'delete': Pipe.createPipe()
-  }
+  };
 
   if (schema.schema[save.idProperty] === undefined) {
-    throw new Error('schema does not have the required property \'' +
-      save.idProperty + '\'')
+    throw new Error(`schema does not have the required property '${save.idProperty}'`)
   }
 
   return extend(self, {
-    name: name,
-    slug: slug,
-    plural: plural,
-    schema: schema,
+    name,
+    slug,
+    plural,
+    schema,
     idProperty: save.idProperty,
     idType: save.idType,
-    create: function (object, createOptions, callback) {
+    create(object, createOptions, callback) {
 
       if (typeof createOptions === 'function') {
         callback = createOptions
@@ -42,26 +40,26 @@ module.exports = function CrudService(name, save, schema, options) {
 
       callback = callback || emptyFn
 
-      var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), createOptions.persist || createOptions.tag, ignoreTagForSubSchema))
+      const cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), createOptions.persist || createOptions.tag, ignoreTagForSubSchema));
 
-      pre.createValidate.run(cleanObject, function (error, pipedObject) {
+      pre.createValidate.run(cleanObject, (error, pipedObject) => {
         if (error) {
           return callback(error)
         }
-        schema.validate(pipedObject, createOptions.set, createOptions.validate || createOptions.tag, function (error, validationErrors) {
+        schema.validate(pipedObject, createOptions.set, createOptions.validate || createOptions.tag, (error, validationErrors) => {
           if (error) {
             return callback(error)
           }
           if (Object.keys(validationErrors).length > 0) {
-            var validationError = new Error('Validation Error')
+            const validationError = new Error('Validation Error');
             validationError.errors = validationErrors
             return callback(validationError, pipedObject)
           }
-          pre.create.run(pipedObject, function (error, pipedObject) {
+          pre.create.run(pipedObject, (error, pipedObject) => {
             if (error) {
               return callback(error)
             }
-            save.create(pipedObject, function (error, savedObject) {
+            save.create(pipedObject, (error, savedObject) => {
               if (error) {
                 return callback(error)
               }
@@ -72,14 +70,14 @@ module.exports = function CrudService(name, save, schema, options) {
         })
       })
     },
-    read: function (id, callback) {
-      return save.read(schema.castProperty(schema.schema[save.idProperty].type, id), function (error, object) {
+    read(id, callback) {
+      return save.read(schema.castProperty(schema.schema[save.idProperty].type, id), (error, object) => {
         if (error) return callback(error)
         if (!object) return callback(undefined, undefined)
         callback(undefined, schema.stripUnknownProperties(object))
-      })
+      });
     },
-    update: function (object, updateOptions, callback) {
+    update(object, updateOptions, callback) {
       if (typeof updateOptions === 'function') {
         callback = updateOptions
         updateOptions = {}
@@ -87,27 +85,27 @@ module.exports = function CrudService(name, save, schema, options) {
 
       callback = callback || emptyFn
 
-      var cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), updateOptions.persist || updateOptions.tag, ignoreTagForSubSchema))
+      const cleanObject = schema.cast(schema.stripUnknownProperties(schema.makeDefault(object), updateOptions.persist || updateOptions.tag, ignoreTagForSubSchema));
 
-      pre.updateValidate.run(cleanObject, function (error, pipedObject) {
+      pre.updateValidate.run(cleanObject, (error, pipedObject) => {
         if (error) {
           return callback(error)
         }
         schema.validate(pipedObject, updateOptions.set, updateOptions.validate || updateOptions.tag,
-          function (error, validationErrors) {
+          (error, validationErrors) => {
           if (error) {
             return callback(error)
           }
           if (Object.keys(validationErrors).length > 0) {
-            var validationError = new Error('Validation Error')
+            const validationError = new Error('Validation Error');
             validationError.errors = validationErrors
             return callback(validationError, pipedObject)
           }
-          pre.update.run(pipedObject, function (error, pipedObject) {
+          pre.update.run(pipedObject, (error, pipedObject) => {
             if (error) {
               return callback(error, pipedObject)
             }
-            save.update(pipedObject, function (error, savedObject) {
+            save.update(pipedObject, (error, savedObject) => {
               if (error) {
                 return callback(error)
               }
@@ -119,7 +117,7 @@ module.exports = function CrudService(name, save, schema, options) {
         })
       })
     },
-    partialUpdate: function (object, updateOptions, callback) {
+    partialUpdate(object, updateOptions, callback) {
       callback = callback || emptyFn
 
       if (typeof updateOptions === 'function') {
@@ -128,48 +126,48 @@ module.exports = function CrudService(name, save, schema, options) {
       }
 
       if (!object[save.idProperty]) {
-        return callback(new Error('object have not ID property \'' + save.idProperty
-          + '\''))
+        return callback(new Error(`object have not ID property '${save.idProperty}'`));
       }
 
-      save.read(object[save.idProperty], function (error, readObject) {
+      save.read(object[save.idProperty], (error, readObject) => {
         if (error) {
           return callback(error)
         }
 
         if (typeof readObject === 'undefined') {
-          return callback(new Error('Couldn\'t find object with an ' + save.idProperty + ' of ' + object[save.idProperty]))
+          return callback(new Error(`Couldn't find object with an ${save.idProperty} of ${object[save.idProperty]}`));
         }
 
         // extend overrides the original object, the original readObject is still needed
-        var readObjectCloned = extend({}, readObject)
-          , updatedObject = extend(readObjectCloned, object)
-          , cleanObject = schema.cast(schema.stripUnknownProperties(updatedObject, updateOptions.persist || updateOptions.tag))
+        const readObjectCloned = extend({}, readObject);
 
-        pre.partialValidate.run(cleanObject, function (error, pipedObject) {
+        const updatedObject = extend(readObjectCloned, object);
+        const cleanObject = schema.cast(schema.stripUnknownProperties(updatedObject, updateOptions.persist || updateOptions.tag));
+
+        pre.partialValidate.run(cleanObject, (error, pipedObject) => {
           if (error) {
             return callback(error)
           }
           schema.validate(pipedObject, updateOptions.set, updateOptions.validate || updateOptions.tag,
-            function (error, validationErrors) {
+            (error, validationErrors) => {
             if (error) {
               return callback(error)
             }
             if (Object.keys(validationErrors).length > 0) {
-              var validationError = new Error('Validation Error')
+              const validationError = new Error('Validation Error');
               validationError.errors = validationErrors
               return callback(validationError, pipedObject)
             }
             // Now only update the keys the original object had.
-            var objectForUpdate = {}
-            Object.keys(object).forEach(function (key) {
+            const objectForUpdate = {};
+            Object.keys(object).forEach(key => {
               objectForUpdate[key] = pipedObject[key]
             })
-            pre.partialUpdate.run(objectForUpdate, function (error, pipedObject) {
+            pre.partialUpdate.run(objectForUpdate, (error, pipedObject) => {
               if (error) {
                 return callback(error, pipedObject)
               }
-              save.update(objectForUpdate, function (error, savedObject) {
+              save.update(objectForUpdate, (error, savedObject) => {
                 if (error) {
                   return callback(error)
                 }
@@ -188,7 +186,7 @@ module.exports = function CrudService(name, save, schema, options) {
         deleteOptions = {}
       }
 
-      save['delete'](id, function (error) {
+      save['delete'](id, error => {
         if (error) {
           return callback(error)
         }
@@ -196,8 +194,8 @@ module.exports = function CrudService(name, save, schema, options) {
         if (typeof callback === 'function') callback()
       })
     },
-    deleteMany: function (query, callback) {
-      save.deleteMany(query, function (error) {
+    deleteMany(query, callback) {
+      save.deleteMany(query, error => {
         if (error) {
           return callback(error)
         }
@@ -206,7 +204,7 @@ module.exports = function CrudService(name, save, schema, options) {
       })
     },
     count: save.count,
-    find: function (query, options, callback) {
+    find(query, options, callback) {
       if (typeof options === 'function') {
         callback = options
         options = {}
@@ -214,25 +212,23 @@ module.exports = function CrudService(name, save, schema, options) {
 
       if (typeof callback === 'undefined') {
         // user requested a stream
-        var stripPropertiesStream = new stream.Transform({ objectMode: true })
+        const stripPropertiesStream = new stream.Transform({ objectMode: true });
 
-        stripPropertiesStream._transform = function (item, encoding, done) {
+        stripPropertiesStream._transform = (item, encoding, done) => {
           done(null, schema.stripUnknownProperties(item))
         }
 
         return save.find.call(save, query, options).pipe(stripPropertiesStream)
       }
 
-      save.find.call(save, query, options, function (error, objects) {
+      save.find.call(save, query, options, (error, objects) => {
         if (error) return callback(error)
         if (!objects.length) return callback(undefined, objects)
-        callback(undefined, objects.map(function (object) {
-          return schema.stripUnknownProperties(object)
-        }))
+        callback(undefined, objects.map(object => schema.stripUnknownProperties(object)))
       })
     },
-    pre: function (method, processor) {
+    pre(method, processor) {
       return pre[method].add(processor)
     }
-  })
+  });
 }

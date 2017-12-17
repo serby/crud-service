@@ -10,10 +10,10 @@
   },
   "main": "./crud-service.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha -r should"
+    "test": "mocha -r should"
   },
   "engines": {
-    "node": ">=0.8.0"
+    "node": ">=6.0.0"
   },
   "dependencies": {
     "piton-pipe": "*"
