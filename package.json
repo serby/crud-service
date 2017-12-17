@@ -4,12 +4,14 @@
   "description": "Create a crud service by combining schemata and save",
   "version": "0.2.0",
   "tags": [],
+  "license": "ISC",
   "repository": {
     "type": "git",
     "url": "git@github.com:serby/crud-service"
   },
   "main": "./crud-service.js",
   "scripts": {
+    "pretest": "eslint --fix -f unix .",
     "test": "jest"
   },
   "engines": {

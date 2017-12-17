@@ -14,10 +14,10 @@ Simple crud service for object definition, validation, basic persistence and col
 ## Usage
 
 ```js
-var CrudService = require('crud-service')
-  , save = require('save')
-  , schema = require('./schema')
-  , service = new Service('things', save('thing'), schema())
+const createCrudService = require('crud-service')
+const save = require('save')
+const schema = require('./schema')
+const service = createCrudService('things', save('thing'), schema())
 
 // service now has some slightly inflated CRUD functionality:
 // .create() .read() .update() .partialUpdate()
@@ -58,7 +58,7 @@ and should callback with `cb(err, entity)`.
 A simple example is to maintain a `lastUpdated` property on service objects:
 
 ```js
-function setUpdateTime(entity, cb) {
+const setUpdateTime = (entity, cb) => {
   entity.lastUpdated = new Date()
   cb(null, entity)
 }
@@ -79,5 +79,5 @@ The available pre hooks are:
 ## Credits
 [Paul Serby](https://github.com/serby/) follow me on twitter [@serby](http://twitter.com/serby)
 
-## Licence
-Licenced under the [New BSD License](http://opensource.org/licenses/bsd-license.php)
+## License
+Licensed under the [ISC](https://opensource.org/licenses/ISC)

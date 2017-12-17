@@ -297,6 +297,7 @@ describe('crud-service', () => {
         { name: 'Paul',
           email: 'paul@serby.net'
         }, (error, newObject) => {
+          expect(error).toBeFalsy()
           id = newObject._id
           done()
         })
@@ -398,6 +399,7 @@ describe('crud-service', () => {
             name: 'Paulo',
             email: 'paul@serby.net'
           }, { persist: 'b', validate: 'b' }, (error, newObject) => {
+            expect(error).toBeFalsy()
             expect(newObject.name).toEqual('Paul')
             expect(newObject.email).toBeDefined()
             done()
@@ -418,6 +420,7 @@ describe('crud-service', () => {
             { name: 'Paul',
               email: 'paul@serby.net'
             }, (error, newObject) => {
+              expect(error).toBeFalsy()
               id = newObject._id
 
               service.update(
@@ -502,6 +505,7 @@ describe('crud-service', () => {
     beforeEach(done => {
       service = createContactCrudService()
       service.create({ name: 'Paul', email: 'paul@serby.net' }, (error, newObject) => {
+        expect(error).toBeFalsy()
         id = newObject._id
         done()
       })
