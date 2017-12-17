@@ -1,6 +1,5 @@
 const emptyFn = () => {};
 const validity = require('validity');
-const should = require('should');
 const schemata = require('schemata');
 const stream = require('stream');
 const _ = require('lodash');
@@ -85,8 +84,8 @@ describe('crud-service', () => {
         { name: 'Paul'
         , email: 'paul@serby.net'
         }, (error, newObject) => {
-          should.not.exist(error)
-          should.not.exist(newObject.extraneous)
+          expect(error).toBeFalsy()
+          expect(newObject.extraneous).toBeFalsy()
           done()
         })
 
@@ -95,7 +94,7 @@ describe('crud-service', () => {
     test('should emit create', done => {
 
       service.on('create', obj => {
-        obj.name.should.equal('Paul Serby')
+        expect(obj.name).toBe('Paul Serby')
         done()
       })
 
@@ -109,8 +108,8 @@ describe('crud-service', () => {
     test('should emit create with createOptions', done => {
 
       service.on('create', (obj, options) => {
-        obj.name.should.equal('Paul Serby')
-        options.test.should.equal('Test')
+        expect(obj.name).toBe('Paul Serby')
+        expect(options.test).toBe('Test')
         done()
       })
 
@@ -126,8 +125,8 @@ describe('crud-service', () => {
       done => {
 
         service.on('create', (obj, options) => {
-          obj.name.should.equal('Paul Serby')
-          should.deepEqual(options, {})
+          expect(obj.name).toBe('Paul Serby')
+          expect(options).deepEqual({})
           done()
         })
 
@@ -145,8 +144,8 @@ describe('crud-service', () => {
           { name: 'Paul'
           , email: 'paul@serby.net'
           }, { tag: 'a' }, (error, newObject) => {
-            should.not.exist(error)
-            should.not.exist(newObject.email)
+            expect(error).toBeFalsy()
+            expect(newObject.email).toBeFalsy()
             done()
           })
       })
@@ -156,7 +155,7 @@ describe('crud-service', () => {
           { name: 'Paul'
           , email: 'paul@serby.net'
           }, { persist: 'a' }, error => {
-            error.errors.should.eql({ email: 'Email is required' })
+            expect(error.errors).toEqual({ email: 'Email is required' })
             done()
           })
       })
@@ -167,8 +166,8 @@ describe('crud-service', () => {
           , email: 'paul@serby.net'
           }, { persist: 'b', validate: 'b' }, (error, newObject) => {
 
-            should.not.exist(newObject.name)
-            should.exist(newObject.email)
+            expect(newObject.name).toBeFalsy()
+            expect(newObject.email).toBeDefined()
             done()
           })
       })
@@ -191,14 +190,14 @@ describe('crud-service', () => {
                 }
               ]
             }, { tag: 'a' }, (error, newObject) => {
-              should.not.exist(error)
+              expect(error).toBeFalsy()
 
-              should.not.exist(newObject.email)
+              expect(newObject.email).toBeFalsy()
 
-              newObject.comments[0].comment.should.equal('My Comment')
-              newObject.comments[0].thread.should.equal('My Thread')
-              newObject.comments[1].comment.should.equal('My Second Comment')
-              newObject.comments[1].thread.should.equal('My Thread 2')
+              expect(newObject.comments[0].comment).toBe('My Comment')
+              expect(newObject.comments[0].thread).toBe('My Thread')
+              expect(newObject.comments[1].comment).toBe('My Second Comment')
+              expect(newObject.comments[1].thread).toBe('My Thread 2')
               done()
             })
         }
@@ -219,15 +218,15 @@ describe('crud-service', () => {
                 }
               ]
             }, { tag: 'a' }, (error, newObject) => {
-              should.not.exist(error)
+              expect(error).toBeFalsy()
 
-              should.not.exist(newObject.email)
+              expect(newObject.email).toBeFalsy()
 
-              should.not.exist(newObject.comments[0].comment)
-              newObject.comments[0].thread.should.equal('My Thread')
+              expect(newObject.comments[0].comment).toBeFalsy()
+              expect(newObject.comments[0].thread).toBe('My Thread')
 
-              should.not.exist(newObject.comments[0].comment)
-              newObject.comments[1].thread.should.equal('My Thread 2')
+              expect(newObject.comments[0].comment).toBeFalsy()
+              expect(newObject.comments[1].thread).toBe('My Thread 2')
               done()
             })
         }
@@ -236,7 +235,7 @@ describe('crud-service', () => {
       test('should only validate tagged options', done => {
         service.create(
           {}, { validate: 'b' }, error => {
-            error.errors.should.eql({ email: 'Email is required' })
+            expect(error.errors).toEqual({ email: 'Email is required' })
             done()
           })
       })
@@ -245,7 +244,7 @@ describe('crud-service', () => {
         service.create(
           { name: 'Paul'
           }, { persist: 'c' }, error => {
-            error.errors.should.eql({ name: 'Name is required', email: 'Email is required' })
+            expect(error.errors).toEqual({ name: 'Name is required', email: 'Email is required' })
             done()
           })
       })
@@ -272,7 +271,7 @@ describe('crud-service', () => {
 
     test('should cast id param to correct type', done => {
       service.read(`${id}`, (error, object) => {
-        object.should.eql(obj)
+        expect(object).toEqual(obj)
         done()
       })
     })
@@ -289,8 +288,8 @@ describe('crud-service', () => {
         , email: 'paul@serby.net'
         }, (error, newObject) => {
           service.read(newObject._id, (error, object) => {
-            should.not.exist(error)
-            should.not.exist(object.extraneous)
+            expect(error).toBeFalsy()
+            expect(object.extraneous).toBeFalsy()
             done()
           })
         })
@@ -324,8 +323,8 @@ describe('crud-service', () => {
         , email: 'paul@serby.net'
         , _id: id
         }, {}, (error, object) => {
-          should.not.exist(error)
-          should.not.exist(object.extraneous)
+          expect(error).toBeFalsy()
+          expect(object.extraneous).toBeFalsy()
           done()
         })
 
@@ -334,7 +333,7 @@ describe('crud-service', () => {
     test('should emit update', done => {
 
       service.on('update', obj => {
-        obj.name.should.equal('Paul Serby')
+        expect(obj.name).toBe('Paul Serby')
         done()
       })
 
@@ -349,8 +348,8 @@ describe('crud-service', () => {
     test('should emit update with updateOptions', done => {
 
       service.on('update', (obj, options) => {
-        obj.name.should.equal('Paul Serby')
-        options.test.should.equal('Test')
+        expect(obj.name).toBe('Paul Serby')
+        expect(options.test).toBe('Test')
         done()
       })
 
@@ -367,8 +366,8 @@ describe('crud-service', () => {
       done => {
 
         service.on('update', (obj, options) => {
-          obj.name.should.equal('Paul Serby')
-          should.deepEqual(options, {})
+          expect(obj.name).toBe('Paul Serby')
+          expect(options).deepEqual({})
           done()
         })
 
@@ -400,8 +399,8 @@ describe('crud-service', () => {
           , name: 'Paul'
           , email: 'Foo'
           }, { tag: 'a' }, (error, newObject) => {
-            should.not.exist(error)
-            newObject.email.should.equal('paul@serby.net')
+            expect(error).toBeFalsy()
+            expect(newObject.email).toBe('paul@serby.net')
             done()
           })
       })
@@ -412,7 +411,7 @@ describe('crud-service', () => {
           , name: 'Paul'
           , email: 'paul@serby.net'
           }, { persist: 'a' }, error => {
-            error.errors.should.eql({ email: 'Email is required' })
+            expect(error.errors).toEqual({ email: 'Email is required' })
             done()
           })
       })
@@ -424,8 +423,8 @@ describe('crud-service', () => {
           , email: 'paul@serby.net'
           }, { persist: 'b', validate: 'b' }, (error, newObject) => {
 
-            newObject.name.should.eql('Paul')
-            should.exist(newObject.email)
+            expect(newObject.name).toEqual('Paul')
+            expect(newObject.email).toBeDefined()
             done()
           })
       })
@@ -459,14 +458,14 @@ describe('crud-service', () => {
                     }
                   ]
                 }, { tag: 'a', ignoreTagForSubSchema: true }, (error, newObject) => {
-                  should.not.exist(error)
+                  expect(error).toBeFalsy()
 
-                  newObject.email.should.equal('paul@serby.net')
+                  expect(newObject.email).toBe('paul@serby.net')
 
-                  newObject.comments[0].comment.should.equal('My Comment Updated')
-                  newObject.comments[0].thread.should.equal('My Thread Updated')
-                  newObject.comments[1].comment.should.equal('My Second Comment Updated')
-                  newObject.comments[1].thread.should.equal('My Thread 2 Updated')
+                  expect(newObject.comments[0].comment).toBe('My Comment Updated')
+                  expect(newObject.comments[0].thread).toBe('My Thread Updated')
+                  expect(newObject.comments[1].comment).toBe('My Second Comment Updated')
+                  expect(newObject.comments[1].thread).toBe('My Thread 2 Updated')
                   done()
                 })
             })
@@ -489,15 +488,15 @@ describe('crud-service', () => {
                 }
               ]
             }, { tag: 'a', ignoreTagForSubSchema: false }, (error, newObject) => {
-              should.not.exist(error)
+              expect(error).toBeFalsy()
 
-              newObject.email.should.equal('paul@serby.net')
+              expect(newObject.email).toBe('paul@serby.net')
 
-              should.not.exist(newObject.comments[0].comment)
-              newObject.comments[0].thread.should.equal('My Thread Updated')
+              expect(newObject.comments[0].comment).toBeFalsy()
+              expect(newObject.comments[0].thread).toBe('My Thread Updated')
 
-              should.not.exist(newObject.comments[0].comment)
-              newObject.comments[1].thread.should.equal('My Thread 2 Updated')
+              expect(newObject.comments[0].comment).toBeFalsy()
+              expect(newObject.comments[1].thread).toBe('My Thread 2 Updated')
               done()
             })
         }
@@ -506,7 +505,7 @@ describe('crud-service', () => {
       test('should only validate tagged options', done => {
         service.create(
           {}, { validate: 'b' }, error => {
-            error.errors.should.eql({ email: 'Email is required' })
+            expect(error.errors).toEqual({ email: 'Email is required' })
             done()
           })
       })
@@ -515,7 +514,7 @@ describe('crud-service', () => {
         service.create(
           { name: 'Paul'
           }, { persist: 'c' }, error => {
-            error.errors.should.eql({ name: 'Name is required', email: 'Email is required' })
+            expect(error.errors).toEqual({ name: 'Name is required', email: 'Email is required' })
             done()
           })
       })
@@ -537,8 +536,8 @@ describe('crud-service', () => {
       const partial = { _id: id, name: 'Serby'};
 
       service.partialUpdate(partial, (error, updatedObject) => {
-        should.not.exist(error)
-        updatedObject.should.eql(_.extend({}, fixtures.contact, partial))
+        expect(error).toBeFalsy()
+        expect(updatedObject).toEqual(_.extend({}, fixtures.contact, partial))
         done()
       })
     })
@@ -549,7 +548,7 @@ describe('crud-service', () => {
 
       service.partialUpdate(partial, error => {
 
-        error.message.should.eql(`Couldn't find object with an _id of ${partial._id}`)
+        expect(error.message).toEqual(`Couldn't find object with an _id of ${partial._id}`)
         done()
       })
     })
@@ -564,8 +563,8 @@ describe('crud-service', () => {
       })
       service.partialUpdate(partial, (error, updatedObject) => {
 
-        should.not.exist(error)
-        updatedObject.should.eql(_.extend({}, fixtures.contact, partial,
+        expect(error).toBeFalsy()
+        expect(updatedObject).toEqual(_.extend({}, fixtures.contact, partial,
           { name: 'SERBY' }))
         done()
       })
@@ -582,8 +581,8 @@ describe('crud-service', () => {
         { name: 'Paul Serby'
         , _id: id
         }, {}, (error, object) => {
-          should.not.exist(error)
-          should.not.exist(object.extraneous)
+          expect(error).toBeFalsy()
+          expect(object.extraneous).toBeFalsy()
           done()
         })
 
@@ -593,7 +592,7 @@ describe('crud-service', () => {
     test('should emit partialUpdate', done => {
 
       service.on('partialUpdate', obj => {
-        obj.name.should.equal('Paul Serby')
+        expect(obj.name).toBe('Paul Serby')
         done()
       })
 
@@ -601,16 +600,16 @@ describe('crud-service', () => {
         { name: 'Paul Serby'
         , _id: id
         }, {}, (error, object) => {
-          should.not.exist(error)
-          should.not.exist(object.extraneous)
+          expect(error).toBeFalsy()
+          expect(object.extraneous).toBeFalsy()
         })
     })
 
     test('should emit partialUpdate with original object', done => {
 
       service.on('partialUpdate', (obj, originalObj) => {
-        obj.name.should.equal('Paul Serby')
-        originalObj.name.should.equal('Paul')
+        expect(obj.name).toBe('Paul Serby')
+        expect(originalObj.name).toBe('Paul')
         done()
       })
 
@@ -625,8 +624,8 @@ describe('crud-service', () => {
     test('should emit partialUpdate with updateOptions', done => {
 
       service.on('partialUpdate', (obj, originalObj, options) => {
-        obj.name.should.equal('Paul Serby')
-        options.test.should.equal('Test')
+        expect(obj.name).toBe('Paul Serby')
+        expect(options.test).toBe('Test')
         done()
       })
 
@@ -668,9 +667,9 @@ describe('crud-service', () => {
             , email: 'bn@grly.me'
             }, () => {
               service.find({ name: 'Ben'}, (error, objects) => {
-                should.not.exist(error)
+                expect(error).toBeFalsy()
                 objects.forEach(object => {
-                  should.not.exist(object.extraneous)
+                  expect(object.extraneous).toBeFalsy()
                 })
                 done()
               })
@@ -699,7 +698,7 @@ describe('crud-service', () => {
               const validateStream = new stream.Transform({ objectMode: true });
 
               validateStream._transform = (item, encoding, done) => {
-                should.not.exist(item.extraneous)
+                expect(item.extraneous).toBeFalsy()
                 done(null, item)
               }
 
