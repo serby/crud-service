@@ -8,7 +8,7 @@ const pipe = (pipeFns, initialValue, cb) => {
   const passThrough = callback => callback(null, initialValue)
   let fns
   if (pipeFns.size > 0) {
-    fns = [ passThrough, ...pipeFns ]
+    fns = [ passThrough ].concat(Array.from(pipeFns))
   } else {
     fns = [ passThrough ]
   }
@@ -134,7 +134,7 @@ module.exports = (name, save, schema, options) => {
         }
 
         // extend overrides the original object, the original readObject is still needed
-        const updatedObject = { ...clone(readObject), ...clone(object) }
+        const updatedObject = Object.assign({}, clone(readObject), clone(object))
         const cleanObject = schema.cast(schema.stripUnknownProperties(updatedObject, updateOptions.persist || updateOptions.tag))
         pipe(pre.partialValidate, cleanObject, (error, pipedObject) => {
           if (error) return callback(error)
