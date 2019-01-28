@@ -4,6 +4,7 @@ const emptyFn = () => {}
 const required = require('validity-required')
 const schemata = require('schemata')
 const stream = require('stream')
+const { EventEmitter } = require('events')
 
 const fixtures = {
   contact: {
@@ -65,6 +66,12 @@ function createContactCrudService (ignoreTagForSubSchema) {
 }
 
 describe('crud-service', () => {
+  describe('returned object', () => {
+    it('should expose an object with the EventEmitter API', () => {
+      const service = createContactCrudService()
+      expect(service).toBeInstanceOf(EventEmitter)
+    })
+  })
   describe('create()', () => {
     let service
 
@@ -516,7 +523,7 @@ describe('crud-service', () => {
 
       service.partialUpdate(partial, (error, updatedObject) => {
         expect(error).toBeFalsy()
-        expect(updatedObject).toEqual({ ...fixtures.contact, ...partial })
+        expect(updatedObject).toEqual(Object.assign({}, fixtures.contact, partial))
         done()
       })
     })
@@ -538,7 +545,7 @@ describe('crud-service', () => {
       })
       service.partialUpdate(partial, (error, updatedObject) => {
         expect(error).toBeFalsy()
-        expect(updatedObject).toEqual({ ...fixtures.contact, ...partial, ...{ name: 'SERBY' } })
+        expect(updatedObject).toEqual(Object.assign({}, fixtures.contact, partial, { name: 'SERBY' }))
         done()
       })
     })
