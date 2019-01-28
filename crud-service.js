@@ -1,6 +1,5 @@
-
 const { waterfall } = require('async')
-const events = require('events')
+const { EventEmitter } = require('events')
 const stream = require('stream')
 const clone = require('lodash.clone')
 const emptyFn = () => {}
@@ -20,7 +19,7 @@ module.exports = (name, save, schema, options) => {
   const slug = (options && options.slug) ? options.slug : name.toLowerCase().replace(/ /g, '')
   const plural = (options && options.plural) ? options.plural : `${name}s`
   const properties = schema.getProperties()
-  const self = new events.EventEmitter()
+  const self = new EventEmitter()
   const ignoreTagForSubSchema = (options && options.ignoreTagForSubSchema) ? options.ignoreTagForSubSchema : false
 
   const pre = {
@@ -37,7 +36,7 @@ module.exports = (name, save, schema, options) => {
     throw new Error(`schema does not have the required property '${save.idProperty}'`)
   }
 
-  return {
+  return Object.assign(self, {
     on: self.on.bind(self),
     emit: self.emit.bind(self),
     name,
@@ -210,5 +209,5 @@ module.exports = (name, save, schema, options) => {
     pre (method, processor) {
       return pre[method].add(processor)
     }
-  }
+  })
 }
