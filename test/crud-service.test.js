@@ -523,7 +523,7 @@ describe('crud-service', () => {
 
       service.partialUpdate(partial, (error, updatedObject) => {
         expect(error).toBeFalsy()
-        expect(updatedObject).toEqual({ ...fixtures.contact, ...partial })
+        expect(updatedObject).toEqual(Object.assign({}, fixtures.contact, partial))
         done()
       })
     })
@@ -545,7 +545,7 @@ describe('crud-service', () => {
       })
       service.partialUpdate(partial, (error, updatedObject) => {
         expect(error).toBeFalsy()
-        expect(updatedObject).toEqual({ ...fixtures.contact, ...partial, ...{ name: 'SERBY' } })
+        expect(updatedObject).toEqual(Object.assign({}, fixtures.contact, partial, { name: 'SERBY' }))
         done()
       })
     })
