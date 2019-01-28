@@ -32,7 +32,7 @@ Create a new crud service that stores entites in the provided `collection`. This
 a [save](https://github.com/serby/save) instance with your preferred engine. A
 [schemata](https://github.com/serby/schemata) schema is required for validation
 
-`service` has the the following CRUD-y methods:
+`service` has the following CRUD-y methods:
 
 #### service.create(Object: obj, Object: options, Function: cb)
 #### service.read(String: objId, Function: cb)
