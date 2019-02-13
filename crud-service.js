@@ -3,6 +3,7 @@ const { EventEmitter } = require('events')
 const stream = require('stream')
 const clone = require('lodash.clone')
 const emptyFn = () => {}
+const schemata = require('schemata')
 
 const pipe = (pipeFns, initialValue, cb) => {
   const passThrough = callback => callback(null, initialValue)
@@ -76,7 +77,7 @@ module.exports = (name, save, schema, options) => {
       })
     },
     read (id, callback) {
-      return save.read(schema.castProperty(properties[save.idProperty].type, id), (error, object) => {
+      return save.read(schemata.castProperty(properties[save.idProperty].type, id), (error, object) => {
         if (error) return callback(error)
         if (!object) return callback(null, undefined)
         callback(null, schema.stripUnknownProperties(object))

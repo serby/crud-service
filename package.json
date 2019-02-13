@@ -18,8 +18,9 @@
     "node": ">=6.0.0"
   },
   "dependencies": {
-    "async": "^2.6.0",
-    "lodash.clone": "^4.5.0"
+    "async": "^2.6.2",
+    "lodash.clone": "^4.5.0",
+    "schemata": "^6.0.0"
   },
   "devDependencies": {
     "eslint": "^4.13.1",
@@ -29,8 +30,7 @@
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
     "jest": "^21.2.1",
-    "save": "^2.3.2",
-    "schemata": "^5.0.0",
+    "save": "^2.3.3",
     "validity-required": "^1.0.0"
   }
 }
