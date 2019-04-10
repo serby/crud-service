@@ -608,6 +608,118 @@ describe('crud-service', () => {
           _id: id
         }, { test: 'Test' }, () => {})
     })
+
+    describe('options', () => {
+      test('should only store and validate tagged options', done => {
+        service.partialUpdate(
+          { _id: id,
+            name: 'Paul',
+            email: 'Foo'
+          }, { tag: 'a' }, (error, newObject) => {
+            expect(error).toBeFalsy()
+            expect(newObject.email).toBeUndefined()
+            done()
+          })
+      })
+
+      test('should validate all properties even with .persist tag is set', done => {
+        service.partialUpdate(
+          { _id: id,
+            name: 'Paul',
+            email: 'paul@serby.net'
+          }, { persist: 'a' }, error => {
+            expect(error.errors).toEqual({ email: 'Email is required' })
+            done()
+          })
+      })
+
+      test('should only store tagged options', done => {
+        service.partialUpdate(
+          { _id: id,
+            name: 'Paulo',
+            email: 'paul@serby.net'
+          }, { persist: 'b', validate: 'b' }, (error, newObject) => {
+            expect(error).toBeFalsy()
+            expect(newObject.name).toBeUndefined()
+            expect(newObject.email).toBeDefined()
+            done()
+          })
+      })
+
+      test(
+        'should store sub-schema properties regardless of tag if ignoreTagForSubSchemas is true',
+        done => {
+          // Set ignoreTagForSubSchema to true and set up initial object
+          service = createContactCrudService(true)
+          service.pre('partialUpdate', (object, cb) => {
+            object.extraneous = 'remove me'
+            cb(null, object)
+          })
+
+          service.create(
+            { name: 'Paul',
+              email: 'paul@serby.net'
+            }, (error, newObject) => {
+              expect(error).toBeFalsy()
+              id = newObject._id
+
+              service.partialUpdate(
+                { _id: id,
+                  name: 'Paul',
+                  email: 'foo',
+                  comments:
+                  [ { thread: 'My Thread Updated',
+                    comment: 'My Comment Updated'
+                  },
+                  { thread: 'My Thread 2 Updated',
+                    comment: 'My Second Comment Updated'
+                  }
+                  ]
+                }, { tag: 'a', ignoreTagForSubSchema: true }, (error, newObject) => {
+                  expect(error).toBeFalsy()
+
+                  expect(newObject.email).toBeUndefined()
+
+                  expect(newObject.comments[0].comment).toBe('My Comment Updated')
+                  expect(newObject.comments[0].thread).toBe('My Thread Updated')
+                  expect(newObject.comments[1].comment).toBe('My Second Comment Updated')
+                  expect(newObject.comments[1].thread).toBe('My Thread 2 Updated')
+                  done()
+                })
+            })
+        }
+      )
+
+      test(
+        'should store sub-schema properties with tag if ignoreTagForSubSchemas is false',
+        done => {
+          service.partialUpdate(
+            { _id: id,
+              name: 'Paul',
+              email: 'foo',
+              comments:
+              [ { thread: 'My Thread Updated',
+                comment: 'My Comment'
+              },
+              { thread: 'My Thread 2 Updated',
+                comment: 'My Second Comment'
+              }
+              ]
+            }, { tag: 'a', ignoreTagForSubSchema: false }, (error, newObject) => {
+              expect(error).toBeFalsy()
+
+              expect(newObject.email).toBeUndefined()
+
+              expect(newObject.comments[0].comment).toBeFalsy()
+              expect(newObject.comments[0].thread).toBe('My Thread Updated')
+
+              expect(newObject.comments[0].comment).toBeFalsy()
+              expect(newObject.comments[1].thread).toBe('My Thread 2 Updated')
+              done()
+            })
+        }
+      )
+    })
   })
 
   describe('delete()', () => {
