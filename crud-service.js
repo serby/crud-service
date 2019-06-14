@@ -171,17 +171,13 @@ module.exports = (name, save, schema, options) => {
         deleteOptions = {}
       }
 
-      save.read(id, (error, readObject) => {
+      pipe(pre.delete, id, (error) => {
         if (error) return callback(error)
 
-        pipe(pre.delete, readObject, (error, deletePipedObject) => {
+        save.delete(id, error => {
           if (error) return callback(error)
-
-          save.delete(id, error => {
-            if (error) return callback(error)
-            self.emit('delete', id, deleteOptions)
-            if (typeof callback === 'function') callback()
-          })
+          self.emit('delete', id, deleteOptions)
+          if (typeof callback === 'function') callback()
         })
       })
     },
