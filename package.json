@@ -12,7 +12,7 @@
   "main": "./crud-service.js",
   "scripts": {
     "pretest": "eslint --fix -f unix .",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "engines": {
     "node": ">=6.0.0"

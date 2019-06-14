@@ -611,11 +611,65 @@ describe('crud-service', () => {
   })
 
   describe('delete()', () => {
-    test('should')
+    test('should not error if unknown ID', () => {
+      const service = createContactCrudService()
+      service.delete(4, err => {
+        expect(err).toBeUndefined()
+      })
+    })
+    test('should delete valid by ID', () => {
+      const service = createContactCrudService()
+      service.create({ ...fixtures.contact }
+        , (noop, contact) => {
+          service.delete(contact._id, err => {
+            expect(err).toBeUndefined()
+            service.find({}, (err, contacts) => {
+              expect(err).toBeNull()
+              expect(contacts).toHaveLength(0)
+            })
+          })
+        })
+    })
+    test('should call run via pre even on unknown Id', () => {
+      const service = createContactCrudService()
+      let preHit = false
+      service.pre('delete', (id, cb) => {
+        preHit = true
+        cb(null, id)
+      })
+      service.delete(4, err => {
+        expect(err).toBeUndefined()
+        expect(preHit).toEqual(true)
+      })
+    })
   })
 
   describe('deleteMany()', () => {
-    test('should')
+    test('should not error on empty query', () => {
+      const service = createContactCrudService()
+      service.deleteMany({ _id: 4 }, err => {
+        expect(err).toBeUndefined()
+      })
+    })
+    test('should not error on empty query', () => {
+      const service = createContactCrudService()
+      service.deleteMany({ _id: 4 }, err => {
+        expect(err).toBeUndefined()
+      })
+    })
+    test('should delete with valid query', () => {
+      const service = createContactCrudService()
+      service.create({ ...fixtures.contact }
+        , (noop, contact) => {
+          service.deleteMany({ _id: contact._id }, err => {
+            expect(err).toBeUndefined()
+            service.find({}, (err, contacts) => {
+              expect(err).toBeNull()
+              expect(contacts).toHaveLength(0)
+            })
+          })
+        })
+    })
   })
 
   describe('find()', () => {
