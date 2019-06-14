@@ -171,10 +171,14 @@ module.exports = (name, save, schema, options) => {
         deleteOptions = {}
       }
 
-      save.delete(id, error => {
+      pipe(pre.delete, id, (error) => {
         if (error) return callback(error)
-        self.emit('delete', id, deleteOptions)
-        if (typeof callback === 'function') callback()
+
+        save.delete(id, error => {
+          if (error) return callback(error)
+          self.emit('delete', id, deleteOptions)
+          if (typeof callback === 'function') callback()
+        })
       })
     },
     deleteMany (query, callback) {
