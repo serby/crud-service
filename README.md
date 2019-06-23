@@ -2,7 +2,7 @@
 
 [![build status](https://travis-ci.org/serby/crud-service.png?branch=master)](http://travis-ci.org/serby/crud-service)
 
-[![NPM](https://nodei.co/npm/crud-service.png)](https://nodei.co/npm/crud-service/)
+[![NPM](https://nodei.co/npm/crud-service.png)](https://nodei.co/npm/crud-service/) [![Greenkeeper badge](https://badges.greenkeeper.io/serby/crud-service.svg)](https://greenkeeper.io/)
 
 Simple crud service for object definition, validation, basic persistence and collection.
 
