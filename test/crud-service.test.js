@@ -733,10 +733,10 @@ describe('crud-service', () => {
   })
 
   describe('count()', () => {
-    test('should')
+    test.todo('should')
   })
 
   describe('pre()', () => {
-    test('should')
+    test.todo('should')
   })
 })
