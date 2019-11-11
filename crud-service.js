@@ -136,7 +136,7 @@ module.exports = (name, save, schema, options) => {
 
         // extend overrides the original object, the original readObject is still needed
         const updatedObject = Object.assign({}, clone(readObject), clone(object))
-        const cleanObject = schema.cast(schema.stripUnknownProperties(updatedObject, updateOptions.persist || updateOptions.tag))
+        const cleanObject = schema.cast(schema.stripUnknownProperties(updatedObject, updateOptions.persist || updateOptions.tag, ignoreTagForSubSchema))
         pipe(pre.partialValidate, cleanObject, (error, pipedObject) => {
           if (error) return callback(error)
           schema.validate(pipedObject, updateOptions.set, updateOptions.validate || updateOptions.tag,
